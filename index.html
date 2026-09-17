@@ -54,11 +54,15 @@
   <!-- ============ HERO — film de marque plein écran ============ -->
   <section id="hero">
     <div class="hero-media">
-      <!-- Vraie vidéo de Salle Le Potier, plein écran (object-fit:cover — jamais déformée).
-           Pour remplacer par une version courte (15-25s) plus tard : remplacer le fichier
-           /assets/videos/salle-le-potier-hero.mp4 (même nom = aucune autre modification requise). -->
+      <!-- Vraie vidéo de Salle Le Potier (version HQ, 21s, sans audio), plein écran
+           (object-fit:cover — jamais déformée, aucun flou sur ce calque).
+           Le navigateur ne charge qu'UNE SEULE source selon le viewport au chargement
+           (la balise <source> avec media correspondant est choisie une fois, pas de double chargement) :
+           - mobile (≤760px) : salle-le-potier-hero-mobile.mp4 (640px de large, plus léger)
+           - desktop/tablette : salle-le-potier-hero-hq.mp4 (960px de large, netteté maximale) -->
       <video class="hero-video-fg" id="hero-video" autoplay muted loop playsinline preload="auto" poster="/assets/images/salle/hero-poster.webp" aria-label="Vidéo de Salle Le Potier">
-        <source src="/assets/videos/salle-le-potier-hero.mp4" type="video/mp4">
+        <source src="/assets/videos/salle-le-potier-hero-mobile.mp4" type="video/mp4" media="(max-width: 760px)">
+        <source src="/assets/videos/salle-le-potier-hero-hq.mp4" type="video/mp4">
       </video>
       <button class="hero-sound-toggle" id="hero-sound-toggle" aria-label="Activer le son" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v4h4l5 5V5L7 10H3z"/><line x1="16" y1="9" x2="21" y2="15"/><line x1="21" y1="9" x2="16" y2="15"/></svg>
