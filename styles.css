@@ -87,6 +87,7 @@ input,select,textarea{font:inherit;color:inherit;background:none;border:none}
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
   padding:20px var(--gutter);transition:background .4s var(--ease),padding .4s var(--ease),box-shadow .4s var(--ease);
+  background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 100%);
 }
 #site-header .logo-badge{width:52px;height:52px;border-radius:6px;overflow:hidden;flex-shrink:0}
 #site-header .logo-badge img{width:100%;height:100%;object-fit:cover}
@@ -118,19 +119,73 @@ body.header-solid #site-header{background:rgba(17,17,17,.96);backdrop-filter:blu
 }
 
 /* ============ HERO ============ */
-#hero{position:relative;min-height:100vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--noir)}
-.hero-media{position:absolute;inset:0;z-index:0}
-.hero-media img,.hero-media .placeholder-fill{width:100%;height:100%;object-fit:cover;animation:hero-zoom 26s var(--ease) infinite alternate}
-@media (prefers-reduced-motion:reduce){ .hero-media img,.hero-media .placeholder-fill{animation:none} }
-@keyframes hero-zoom{from{transform:scale(1)}to{transform:scale(1.08)}}
-.hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(10,10,10,.55) 0%,rgba(10,10,10,.35) 40%,rgba(10,10,10,.82) 100%)}
-.hero-inner{position:relative;z-index:2;padding:0 var(--gutter) 72px;max-width:900px;color:var(--blanc)}
-.hero-inner .eyebrow{color:var(--champagne)}
-.hero-inner h1{font-family:var(--serif);font-size:clamp(2.6rem,7vw,5.2rem);line-height:1.02;margin-top:14px}
-.hero-inner p{margin-top:20px;font-size:clamp(15px,1.6vw,18px);color:rgba(255,255,255,.85);max-width:560px}
+#hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--noir)}
+@media (max-width:760px){ #hero{min-height:100svh} }
+
+/* ---- Vidéo Hero : deux calques d'une même source (voir index.html) ----
+   .hero-video-bg : agrandie, floutée, comble l'espace horizontal (desktop seulement)
+   .hero-video-fg : nette, hauteur pleine, largeur automatique — jamais déformée ni rognée */
+.hero-media{position:absolute;inset:0;z-index:0;background:var(--noir)}
+.hero-video-bg,.hero-video-fg{position:absolute;top:0;bottom:0}
+.hero-video-bg{
+  left:0;right:0;width:100%;height:100%;object-fit:cover;
+  filter:blur(46px) brightness(.5) saturate(1.15);transform:scale(1.2);
+}
+.hero-video-fg{
+  right:0;left:auto;height:100%;width:auto;max-width:none;object-fit:contain;
+}
+@media (max-width:900px){
+  .hero-video-bg{display:none}
+  .hero-video-fg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+}
+
+.hero-sound-toggle{
+  position:absolute;z-index:2;bottom:22px;right:22px;width:38px;height:38px;border-radius:50%;
+  background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);transition:background .25s var(--ease),color .25s var(--ease);
+}
+.hero-sound-toggle:hover{background:rgba(0,0,0,.5);color:var(--blanc)}
+.hero-sound-toggle svg{width:16px;height:16px}
+.hero-sound-toggle[aria-pressed="true"]{border-color:var(--champagne);color:var(--champagne)}
+@media (max-width:760px){ .hero-sound-toggle{bottom:auto;top:96px} }
+
+.hero-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(90deg,rgba(8,8,8,.86) 0%,rgba(8,8,8,.7) 28%,rgba(8,8,8,.36) 58%,rgba(8,8,8,.12) 100%),
+             linear-gradient(180deg,rgba(8,8,8,.15) 0%,rgba(8,8,8,0) 22%,rgba(8,8,8,.55) 100%);
+}
+@media (max-width:900px){
+  .hero-overlay{background:linear-gradient(180deg,rgba(8,8,8,.55) 0%,rgba(8,8,8,.25) 30%,rgba(8,8,8,.35) 60%,rgba(8,8,8,.88) 100%)}
+}
+
+.hero-inner{position:relative;z-index:2;padding:0 var(--gutter) 72px;max-width:640px;color:var(--blanc)}
+.hero-inner .eyebrow{color:var(--champagne);letter-spacing:3px}
+.hero-inner h1{font-family:var(--serif);font-size:clamp(2.4rem,6.4vw,4.6rem);line-height:1.03;margin-top:14px}
+.hero-inner h1 span{display:block}
+.hero-inner p{margin-top:20px;font-size:clamp(15px,1.6vw,18px);color:rgba(255,255,255,.85);max-width:480px}
 .hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-top:34px}
 .hero-tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:40px}
-.hero-tag{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:8px 14px;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.85);border-radius:20px}
+.hero-tag{
+  font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:8px 16px;
+  border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.18);backdrop-filter:blur(4px);
+  color:rgba(255,255,255,.9);border-radius:999px;
+}
+
+.btn-glass{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.4);color:var(--blanc);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.btn-glass:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+
+/* ---- Apparition progressive du texte du Hero au chargement ---- */
+.reveal-text{opacity:0;transform:translateY(16px);animation:hero-text-in .8s var(--ease) forwards}
+@keyframes hero-text-in{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){ .reveal-text{animation:none;opacity:1;transform:none} }
+
+@media (max-width:760px){
+  .hero-ctas{flex-direction:column}
+  .hero-ctas .btn{width:100%}
+}
 
 /* ============ PLACEHOLDER PHOTO (aucune vraie photo fournie pour le moment) ============ */
 .placeholder-fill{

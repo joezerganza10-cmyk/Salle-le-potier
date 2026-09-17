@@ -135,6 +135,18 @@ function renderFAQPreview(){
   initFAQAccordion(el);
 }
 
+/* ---------- Contrôle du son de la vidéo Hero (désactivé par défaut) ---------- */
+function initHeroSound(){
+  const video = document.getElementById('hero-video');
+  const toggle = document.getElementById('hero-sound-toggle');
+  if (!video || !toggle) return;
+  toggle.addEventListener('click', () => {
+    video.muted = !video.muted;
+    toggle.setAttribute('aria-pressed', String(!video.muted));
+    toggle.setAttribute('aria-label', video.muted ? 'Activer le son' : 'Couper le son');
+  });
+}
+
 /* ---------- Formulaire rapide (parcours simple) ---------- */
 function renderQuickFormEventTypes(){
   const select = document.getElementById('qf-type');
@@ -165,5 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderFAQPreview();
   renderQuickFormEventTypes();
   initQuickForm();
+  initHeroSound();
   initReveal();
 });

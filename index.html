@@ -54,29 +54,37 @@
   <!-- ============ HERO ============ -->
   <section id="hero">
     <div class="hero-media">
-      <!-- Aucune photographie réelle de Salle Le Potier fournie pour le moment.
-           Pour l'intégrer : remplacer ce bloc par <img src="/assets/images/salle/salle-1.jpg" alt="Salle Le Potier"> -->
-      <div class="placeholder-fill" role="img" aria-label="Salle Le Potier — photographie à venir">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5.5-5.5a2 2 0 00-2.8 0L3 19"/></svg>
-        <span>Salle Le Potier</span>
-        <small>Photographie à venir</small>
-      </div>
+      <!-- Vraie vidéo de Salle Le Potier — le même fichier alimente les deux calques ci-dessous :
+           - .hero-video-bg : agrandie + floutée, remplit l'espace horizontal (desktop uniquement)
+           - .hero-video-fg : nette, non déformée, montre la salle en entier
+           Pour remplacer par une version courte (15-25s) plus tard : mettre à jour le chemin
+           "/assets/videos/salle-le-potier-hero.mp4" dans les DEUX balises <source> ci-dessous
+           (même nom de fichier possible pour éviter d'avoir à toucher au HTML). -->
+      <video class="hero-video-bg" autoplay muted loop playsinline preload="auto" poster="/assets/images/salle/hero-poster.webp" aria-hidden="true">
+        <source src="/assets/videos/salle-le-potier-hero.mp4" type="video/mp4">
+      </video>
+      <video class="hero-video-fg" id="hero-video" autoplay muted loop playsinline preload="auto" poster="/assets/images/salle/hero-poster.webp" aria-label="Vidéo de Salle Le Potier">
+        <source src="/assets/videos/salle-le-potier-hero.mp4" type="video/mp4">
+      </video>
+      <button class="hero-sound-toggle" id="hero-sound-toggle" aria-label="Activer le son" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v4h4l5 5V5L7 10H3z"/><line x1="16" y1="9" x2="21" y2="15"/><line x1="21" y1="9" x2="16" y2="15"/></svg>
+      </button>
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-inner">
-      <span class="eyebrow">Salle Le Potier</span>
-      <h1>Vos moments.<br>Notre espace.</h1>
-      <p>Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
-      <div class="hero-ctas">
+      <span class="eyebrow reveal-text" style="transition-delay:.05s">Salle Le Potier · LaSalle</span>
+      <h1><span class="reveal-text" style="transition-delay:.15s">Vos moments.</span><br><span class="reveal-text" style="transition-delay:.3s">Notre espace.</span></h1>
+      <p class="reveal-text" style="transition-delay:.45s">Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
+      <div class="hero-ctas reveal-text" style="transition-delay:.6s">
         <a href="/configurateur" class="btn btn-champagne">Vérifier la disponibilité</a>
-        <a href="/configurateur" class="btn btn-blanc-ligne">Configurer mon événement</a>
+        <a href="/configurateur" class="btn btn-glass">Configurer mon événement</a>
       </div>
-      <a href="/tarifs" class="btn-lien" style="display:inline-block;margin-top:20px;color:rgba(255,255,255,.75)">Voir les tarifs</a>
-      <div class="hero-tags">
+      <a href="/tarifs" class="btn-lien reveal-text" style="display:inline-block;margin-top:20px;color:rgba(255,255,255,.75);transition-delay:.7s">Voir les tarifs</a>
+      <div class="hero-tags reveal-text" style="transition-delay:.8s">
         <span class="hero-tag">350+ personnes</span>
+        <span class="hero-tag">4h · 800 $</span>
+        <span class="hero-tag">8h · 1 200 $</span>
         <span class="hero-tag">LaSalle</span>
-        <span class="hero-tag">Stationnement</span>
-        <span class="hero-tag">Terrasse</span>
       </div>
     </div>
   </section>
