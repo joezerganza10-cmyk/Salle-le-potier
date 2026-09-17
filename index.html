@@ -51,18 +51,12 @@
 
 <main id="main">
 
-  <!-- ============ HERO ============ -->
+  <!-- ============ HERO — film de marque plein écran ============ -->
   <section id="hero">
     <div class="hero-media">
-      <!-- Vraie vidéo de Salle Le Potier — le même fichier alimente les deux calques ci-dessous :
-           - .hero-video-bg : agrandie + floutée, remplit l'espace horizontal (desktop uniquement)
-           - .hero-video-fg : nette, non déformée, montre la salle en entier
-           Pour remplacer par une version courte (15-25s) plus tard : mettre à jour le chemin
-           "/assets/videos/salle-le-potier-hero.mp4" dans les DEUX balises <source> ci-dessous
-           (même nom de fichier possible pour éviter d'avoir à toucher au HTML). -->
-      <video class="hero-video-bg" autoplay muted loop playsinline preload="auto" poster="/assets/images/salle/hero-poster.webp" aria-hidden="true">
-        <source src="/assets/videos/salle-le-potier-hero.mp4" type="video/mp4">
-      </video>
+      <!-- Vraie vidéo de Salle Le Potier, plein écran (object-fit:cover — jamais déformée).
+           Pour remplacer par une version courte (15-25s) plus tard : remplacer le fichier
+           /assets/videos/salle-le-potier-hero.mp4 (même nom = aucune autre modification requise). -->
       <video class="hero-video-fg" id="hero-video" autoplay muted loop playsinline preload="auto" poster="/assets/images/salle/hero-poster.webp" aria-label="Vidéo de Salle Le Potier">
         <source src="/assets/videos/salle-le-potier-hero.mp4" type="video/mp4">
       </video>
@@ -72,25 +66,23 @@
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-inner">
-      <span class="eyebrow reveal-text" style="transition-delay:.05s">Salle Le Potier · LaSalle</span>
-      <h1><span class="reveal-text" style="transition-delay:.15s">Vos moments.</span><br><span class="reveal-text" style="transition-delay:.3s">Notre espace.</span></h1>
-      <p class="reveal-text" style="transition-delay:.45s">Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
-      <div class="hero-ctas reveal-text" style="transition-delay:.6s">
-        <a href="/configurateur" class="btn btn-champagne">Vérifier la disponibilité</a>
-        <a href="/configurateur" class="btn btn-glass">Configurer mon événement</a>
+      <span class="eyebrow reveal-text" style="transition-delay:.05s">Salle événementielle · LaSalle</span>
+      <h1><span class="reveal-text" style="transition-delay:.15s">Vos moments.</span><br><span class="reveal-text hero-title-accent" style="transition-delay:.3s">Notre espace.</span></h1>
+      <p class="reveal-text" style="transition-delay:.4s">Une salle événementielle à LaSalle pouvant accueillir plus de 350 personnes.</p>
+      <div class="hero-ctas reveal-text" style="transition-delay:.5s">
+        <a href="/configurateur" class="btn btn-champagne">
+          <svg class="hero-cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+          Vérifier la disponibilité
+        </a>
+        <a href="#hero-next" class="btn btn-glass">Découvrir la salle ↓</a>
       </div>
-      <a href="/tarifs" class="btn-lien reveal-text" style="display:inline-block;margin-top:20px;color:rgba(255,255,255,.75);transition-delay:.7s">Voir les tarifs</a>
-      <div class="hero-tags reveal-text" style="transition-delay:.8s">
-        <span class="hero-tag">350+ personnes</span>
-        <span class="hero-tag">4h · 800 $</span>
-        <span class="hero-tag">8h · 1 200 $</span>
-        <span class="hero-tag">LaSalle</span>
-      </div>
+      <a href="/configurateur" class="hero-configurator-link reveal-text" style="transition-delay:.6s">Configurer mon événement →</a>
     </div>
+    <a href="#hero-next" class="hero-scroll-cue reveal-text" style="transition-delay:.7s"><span>Découvrir</span><span class="line"></span></a>
   </section>
 
   <!-- ============ CHIFFRES CLÉS ============ -->
-  <section class="stats-band">
+  <section class="stats-band" id="hero-next">
     <div class="wrap">
       <div class="stats-grid reveal-stagger" id="stats-grid">
         <div class="stat-item"><div class="stat-number" data-count="350" data-suffix="+">0</div><div class="stat-label">Personnes</div></div>
