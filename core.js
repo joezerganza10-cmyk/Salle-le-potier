@@ -18,11 +18,11 @@ function placeholderHTML(label, opts){
     </div>`;
 }
 
-/* ---------- Header : fond opaque au scroll, menu mobile ---------- */
+/* ---------- Header : fond opaque au scroll, menu mobile, lien actif ---------- */
 function initHeader(){
   const header = document.getElementById('site-header');
   if (!header) return;
-  function onScroll(){ header.classList.toggle('is-scrolled', window.scrollY > 40); }
+  function onScroll(){ header.classList.toggle('is-scrolled', window.scrollY > 100); }
   window.addEventListener('scroll', onScroll, { passive:true });
   onScroll();
 
@@ -39,6 +39,12 @@ function initHeader(){
       burger.classList.remove('is-open');
       document.body.style.overflow = '';
     }));
+
+    const current = window.location.pathname.replace(/\/$/, '') || '/';
+    nav.querySelectorAll(':scope > a').forEach(a => {
+      const href = a.getAttribute('href').replace(/\/$/, '') || '/';
+      a.classList.toggle('is-active', href === current);
+    });
   }
 }
 

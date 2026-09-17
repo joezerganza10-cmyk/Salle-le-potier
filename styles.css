@@ -82,44 +82,66 @@ input,select,textarea{font:inherit;color:inherit;background:none;border:none}
 .btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 .btn-lien{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;text-decoration:underline;text-underline-offset:4px;color:var(--gris-texte)}
 
-/* ============ HEADER ============ */
+/* ============ HEADER — navigation flottante premium ============ */
 #site-header{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px var(--gutter);transition:background .4s var(--ease),padding .4s var(--ease),box-shadow .4s var(--ease);
-  background:linear-gradient(180deg,rgba(0,0,0,.4) 0%,rgba(0,0,0,0) 100%);
+  position:fixed;top:22px;left:50%;transform:translateX(-50%);
+  width:min(94%,1540px);z-index:100;
 }
-#site-header .logo-badge{width:42px;height:42px;border-radius:6px;overflow:hidden;flex-shrink:0}
+.header-inner{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;
+  height:72px;padding:0 26px;border-radius:20px;
+  background:rgba(10,10,10,.5);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 40px rgba(0,0,0,.18);
+  transition:background .4s var(--ease),height .4s var(--ease),box-shadow .4s var(--ease);
+}
+#site-header .logo-badge{width:46px;height:46px;border-radius:10px;overflow:hidden;flex-shrink:0}
 #site-header .logo-badge img{width:100%;height:100%;object-fit:cover}
-.header-nav{display:flex;gap:30px;align-items:center}
-.header-nav a{font-size:12.5px;font-weight:600;letter-spacing:.3px;color:var(--blanc);transition:color .3s var(--ease)}
-.header-nav a:hover{color:var(--champagne)}
-.header-actions{display:flex;align-items:center;gap:16px}
-.header-cta{font-size:10px;padding:12px 22px}
-.header-burger{display:none;width:26px;height:18px;position:relative;flex-direction:column;justify-content:space-between}
+
+.header-nav{display:flex;gap:30px;align-items:center;justify-self:center}
+.header-nav a{
+  position:relative;font-size:13px;font-weight:500;letter-spacing:.04em;color:rgba(255,255,255,.78);
+  padding-bottom:4px;transition:color .25s var(--ease);
+}
+.header-nav a::after{
+  content:'';position:absolute;left:0;bottom:0;height:1px;width:0;background:var(--champagne);
+  transition:width .28s var(--ease);
+}
+.header-nav a:hover{color:var(--blanc)}
+.header-nav a:hover::after{width:100%}
+.header-nav a.is-active{color:var(--blanc)}
+.header-nav a.is-active::after{width:100%}
+.header-nav-mobile-extra{display:none}
+
+.header-actions{display:flex;align-items:center;gap:16px;justify-self:end}
+.header-cta{font-size:11px;height:44px;padding:0 24px;letter-spacing:.08em;border-radius:10px}
+.header-burger{display:none;width:24px;height:16px;position:relative;flex-direction:column;justify-content:space-between}
 .header-burger span{display:block;height:2px;width:100%;background:var(--blanc);transition:transform .3s var(--ease),opacity .3s var(--ease)}
 
-#site-header.is-scrolled{background:rgba(17,17,17,.92);backdrop-filter:blur(8px);padding-block:14px;box-shadow:0 6px 24px rgba(0,0,0,.15)}
-/* Pages sans section sombre sous le header (ex. configurateur) : header toujours opaque, dès le chargement. */
-body.header-solid #site-header{background:rgba(17,17,17,.96);backdrop-filter:blur(8px)}
-#site-header.is-light .header-nav a{color:var(--noir)}
-#site-header.is-light .header-burger span{background:var(--noir)}
-#site-header.is-light{background:rgba(247,245,241,.94)}
+#site-header.is-scrolled .header-inner{background:rgba(10,10,10,.82);height:64px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+/* Pages sans photo/vidéo sombre sous le header (ex. configurateur) : header toujours opaque. */
+body.header-solid .header-inner{background:rgba(10,10,10,.88)}
 
-@media (max-width:900px){
-  .header-nav{position:fixed;inset:0;top:0;background:var(--noir);flex-direction:column;justify-content:center;align-items:center;gap:28px;
-    transform:translateX(100%);transition:transform .45s var(--ease);z-index:99}
-  .header-nav.is-open{transform:translateX(0)}
-  .header-nav a{font-size:20px;color:var(--blanc)}
+@media (max-width:1000px){
+  #site-header{top:14px}
+  .header-inner{height:60px;border-radius:16px;padding:0 18px}
+  .header-nav{
+    position:fixed;inset:0;top:0;background:#0b0b0b;flex-direction:column;justify-content:center;align-items:center;gap:26px;
+    opacity:0;pointer-events:none;transform:translateY(-14px);transition:opacity .35s var(--ease),transform .35s var(--ease);z-index:99;
+  }
+  .header-nav.is-open{opacity:1;pointer-events:auto;transform:translateY(0)}
+  .header-nav a{font-size:19px;color:var(--blanc);padding-bottom:0}
+  .header-nav a::after{display:none}
+  .header-nav-mobile-extra{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:10px}
+  .header-nav-phone{font-size:14px;color:rgba(255,255,255,.68)}
   .header-actions .header-cta.desktop-only{display:none}
   .header-burger{display:flex}
-  .header-burger.is-open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+  .header-burger.is-open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
   .header-burger.is-open span:nth-child(2){opacity:0}
-  .header-burger.is-open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+  .header-burger.is-open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 }
 
 /* ============ HERO — expérience cinématographique plein écran ============ */
-#hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--noir)}
+#hero{position:relative;min-height:92vh;overflow:hidden;background:var(--noir)}
 @media (max-width:760px){ #hero{min-height:100svh} }
 
 /* Vraie photographie de Salle Le Potier en plein écran (voir index.html) —
@@ -148,16 +170,22 @@ body.header-solid #site-header{background:rgba(17,17,17,.96);backdrop-filter:blu
   .hero-overlay{background:linear-gradient(to top,rgba(6,6,6,.85) 0%,rgba(6,6,6,.45) 32%,rgba(6,6,6,.08) 60%)}
 }
 
-.hero-inner{position:relative;z-index:2;padding:0 clamp(24px,6vw,100px) clamp(64px,10vh,120px);max-width:560px;color:var(--blanc)}
+/* Contenu éditorial ancré vers 44% de la hauteur du Hero (tiers inférieur gauche),
+   nettement sous le header flottant — jamais collé à la navigation. */
+.hero-inner{position:absolute;z-index:2;top:44%;left:0;right:0;padding:0 clamp(24px,6vw,100px);max-width:600px;color:var(--blanc)}
+@media (max-width:760px){ .hero-inner{top:auto;bottom:0;padding-bottom:clamp(56px,9vh,100px)} }
 .hero-inner .eyebrow{color:var(--champagne);letter-spacing:3px;display:inline-flex;align-items:center;gap:8px}
 .hero-inner .eyebrow::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--champagne)}
-.hero-inner h1{font-family:var(--serif);font-size:clamp(2.6rem,4.6vw,5.1rem);line-height:1.06;margin-top:14px}
+.hero-inner h1{font-family:var(--serif);font-size:clamp(3.625rem,5.2vw,5.5rem);line-height:1.04;margin-top:14px}
 .hero-inner h1 span{display:block}
 .hero-title-accent{font-style:italic;color:var(--champagne)}
 .hero-inner p{margin-top:18px;font-size:clamp(14px,1.3vw,16px);color:rgba(255,255,255,.82);max-width:420px}
-.hero-ctas{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:30px}
+.hero-ctas{display:flex;align-items:center;gap:26px;flex-wrap:wrap;margin-top:32px}
+.hero-ctas .btn-champagne{height:56px;padding:0 30px}
 .hero-cta-icon{width:14px;height:14px;flex-shrink:0}
-.hero-configurator-link{display:inline-block;margin-top:18px;font-size:12px;color:rgba(255,255,255,.65)}
+.hero-secondary-link{font-size:13.5px;font-weight:500;color:rgba(255,255,255,.85);transition:color .25s var(--ease)}
+.hero-secondary-link:hover{color:var(--champagne)}
+.hero-configurator-link{display:inline-block;margin-top:20px;font-size:13px;color:rgba(255,255,255,.68)}
 .hero-configurator-link:hover{color:var(--champagne)}
 
 .hero-scroll-cue{
