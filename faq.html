@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAQ | Salle Le Potier — LaSalle</title>
+<meta name="description" content="Toutes les réponses à vos questions sur Salle Le Potier : capacité, tarifs, équipement inclus, stationnement et plus.">
+<link rel="canonical" href="https://salle-le-potier.ca/faq">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/assets/images/logo/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<noscript><style>.reveal,.reveal-stagger>*{opacity:1!important;transform:none!important}</style></noscript>
+<script type="application/ld+json" id="faq-jsonld">{}</script>
+</head>
+<body>
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<header id="site-header">
+  <a href="/" class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></a>
+  <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+    <a href="/">Accueil</a>
+    <a href="/la-salle">La salle</a>
+    <a href="/tarifs">Tarifs</a>
+    <a href="/services">Services</a>
+    <a href="/galerie">Galerie</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <div class="header-actions">
+    <a href="/configurateur" class="btn btn-champagne header-cta desktop-only">Vérifier la disponibilité</a>
+    <button class="header-burger" id="menu-toggle" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero">
+    <span class="eyebrow">Questions fréquentes</span>
+    <h1>FAQ</h1>
+  </section>
+
+  <section class="section" style="background:var(--blanc)">
+    <div class="wrap" style="max-width:760px">
+      <div class="faq-list reveal" id="faq-list-full"></div>
+    </div>
+  </section>
+
+  <section class="cta-final">
+    <div class="wrap">
+      <span class="eyebrow">Une autre question ?</span>
+      <h2>Nous sommes là pour y répondre.</h2>
+      <div class="hero-ctas">
+        <a href="tel:+14389359473" class="btn btn-champagne">Appeler</a>
+        <a href="/contact" class="btn btn-blanc-ligne">Envoyer un courriel</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></div>
+        <p>Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <a href="/">Accueil</a><a href="/la-salle">La salle</a><a href="/tarifs">Tarifs</a>
+        <a href="/services">Services</a><a href="/galerie">Galerie</a><a href="/configurateur">Configurateur</a>
+        <a href="/faq">FAQ</a><a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Coordonnées</h5>
+        <p>2136 A rue Pigeon<br>LaSalle, Québec</p>
+        <a href="tel:+14389359473">438-935-9473</a>
+        <a href="mailto:dons.potier@gmail.com">dons.potier@gmail.com</a>
+      </div>
+      <div class="footer-col">
+        <h5>Salle Le Potier</h5>
+        <p style="font-style:italic">Créez. Célébrez. Rassemblez.</p>
+        <a href="/configurateur">Configurer mon événement</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span id="year"></span> Salle Le Potier. Tous droits réservés.</span></div>
+  </div>
+</footer>
+
+<div id="mobile-sticky-cta">
+  <div class="msc-inner">
+    <a href="tel:+14389359473" class="msc-call">Appeler</a>
+    <a href="/configurateur" class="msc-book">Réserver</a>
+  </div>
+</div>
+
+<script src="/data/site-data.js"></script>
+<script src="/data/faq.js"></script>
+<script src="/core.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('faq-list-full');
+  el.innerHTML = FAQ.map(f => `
+    <div class="faq-item">
+      <button class="faq-question"><span>${f.q}</span><span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>${f.a}</p></div>
+    </div>`).join('');
+  initFAQAccordion(el);
+
+  document.getElementById('faq-jsonld').textContent = JSON.stringify({
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity": FAQ.map(f => ({
+      "@type":"Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type":"Answer", "text": f.a }
+    }))
+  });
+});
+</script>
+</body>
+</html>

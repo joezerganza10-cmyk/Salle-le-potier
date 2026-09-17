@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurer mon événement | Salle Le Potier</title>
+<meta name="description" content="Construisez votre événement étape par étape et obtenez une estimation indicative — Salle Le Potier, LaSalle.">
+<link rel="canonical" href="https://salle-le-potier.ca/configurateur">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" href="/assets/images/logo/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<noscript><style>.reveal,.reveal-stagger>*{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body class="header-solid">
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<header id="site-header">
+  <a href="/" class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></a>
+  <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+    <a href="/">Accueil</a>
+    <a href="/la-salle">La salle</a>
+    <a href="/tarifs">Tarifs</a>
+    <a href="/services">Services</a>
+    <a href="/galerie">Galerie</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <div class="header-actions">
+    <a href="tel:+14389359473" class="btn btn-champagne header-cta desktop-only">438-935-9473</a>
+    <button class="header-burger" id="menu-toggle" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <div class="configurator-shell">
+    <div id="cfg-main">
+      <div class="configurator-progress" id="cfg-progress"></div>
+      <div id="cfg-step-content"></div>
+    </div>
+    <aside class="cfg-summary" id="cfg-summary"></aside>
+  </div>
+</main>
+
+<div id="cfg-mobile-bar">
+  <div><div class="mb-label">Estimation</div><div class="mb-amount" id="mb-amount">0 $</div></div>
+  <button class="btn btn-champagne" id="mb-view" style="padding:12px 20px">Voir</button>
+</div>
+
+<div id="cfg-drawer">
+  <div class="drawer-panel">
+    <div class="drawer-close" id="drawer-close">Fermer ✕</div>
+    <div id="drawer-summary"></div>
+  </div>
+</div>
+
+<script src="/data/site-data.js"></script>
+<script src="/data/pricing.js"></script>
+<script src="/data/events.js"></script>
+<script src="/core.js"></script>
+<script src="/configurator.js"></script>
+</body>
+</html>

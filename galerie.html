@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galerie | Salle Le Potier — LaSalle</title>
+<meta name="description" content="Imaginez votre événement à Salle Le Potier — galerie photo de la salle, des événements et de la terrasse.">
+<link rel="canonical" href="https://salle-le-potier.ca/galerie">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/assets/images/logo/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<noscript><style>.reveal,.reveal-stagger>*{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body>
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<header id="site-header">
+  <a href="/" class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></a>
+  <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+    <a href="/">Accueil</a>
+    <a href="/la-salle">La salle</a>
+    <a href="/tarifs">Tarifs</a>
+    <a href="/services">Services</a>
+    <a href="/galerie">Galerie</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <div class="header-actions">
+    <a href="/configurateur" class="btn btn-champagne header-cta desktop-only">Vérifier la disponibilité</a>
+    <button class="header-burger" id="menu-toggle" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero">
+    <span class="eyebrow">Galerie</span>
+    <h1>Imaginez votre événement ici</h1>
+    <p>Les photographies réelles de Salle Le Potier seront ajoutées ici dès qu'elles seront disponibles.</p>
+  </section>
+
+  <section class="section" style="background:var(--blanc-casse)">
+    <div class="wrap">
+      <div class="gallery-mosaic reveal" id="gallery-full"></div>
+    </div>
+  </section>
+
+  <section class="cta-final">
+    <div class="wrap">
+      <span class="eyebrow">Salle Le Potier</span>
+      <h2>Votre prochain événement<br>commence ici.</h2>
+      <div class="hero-ctas">
+        <a href="/configurateur" class="btn btn-champagne">Configurer mon événement</a>
+        <a href="/contact" class="btn btn-blanc-ligne">Vérifier la disponibilité</a>
+      </div>
+      <a href="tel:+14389359473" class="cta-phone">438-935-9473</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></div>
+        <p>Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <a href="/">Accueil</a><a href="/la-salle">La salle</a><a href="/tarifs">Tarifs</a>
+        <a href="/services">Services</a><a href="/galerie">Galerie</a><a href="/configurateur">Configurateur</a>
+        <a href="/faq">FAQ</a><a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Coordonnées</h5>
+        <p>2136 A rue Pigeon<br>LaSalle, Québec</p>
+        <a href="tel:+14389359473">438-935-9473</a>
+        <a href="mailto:dons.potier@gmail.com">dons.potier@gmail.com</a>
+      </div>
+      <div class="footer-col">
+        <h5>Salle Le Potier</h5>
+        <p style="font-style:italic">Créez. Célébrez. Rassemblez.</p>
+        <a href="/configurateur">Configurer mon événement</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span id="year"></span> Salle Le Potier. Tous droits réservés.</span></div>
+  </div>
+</footer>
+
+<div id="mobile-sticky-cta">
+  <div class="msc-inner">
+    <a href="tel:+14389359473" class="msc-call">Appeler</a>
+    <a href="/configurateur" class="msc-book">Réserver</a>
+  </div>
+</div>
+
+<div id="lightbox">
+  <button id="lightbox-close" class="lb-close">Fermer ✕</button>
+  <button id="lightbox-prev" class="lb-nav lb-prev" aria-label="Précédent">‹</button>
+  <div id="lightbox-content"></div>
+  <button id="lightbox-next" class="lb-nav lb-next" aria-label="Suivant">›</button>
+</div>
+
+<script src="/data/site-data.js"></script>
+<script src="/data/gallery.js"></script>
+<script src="/core.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('gallery-full');
+  el.innerHTML = GALLERY.map((item,i) => `
+    <div class="g-item" data-lightbox-open="${i}">
+      ${item.src ? `<img src="${item.src}" alt="${item.label}" loading="lazy">` : placeholderHTML(item.label)}
+    </div>`).join('');
+  initLightbox(GALLERY);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+_local-server.ps1
+.DS_Store
+Thumbs.db
+server-out.log
+server-err.log

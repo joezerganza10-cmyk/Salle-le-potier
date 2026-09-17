@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services | Salle Le Potier — LaSalle</title>
+<meta name="description" content="Personnalisez votre événement chez Salle Le Potier : technologie, instruments, décoration et services professionnels.">
+<link rel="canonical" href="https://salle-le-potier.ca/services">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/assets/images/logo/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<noscript><style>.reveal,.reveal-stagger>*{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body>
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<header id="site-header">
+  <a href="/" class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></a>
+  <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+    <a href="/">Accueil</a>
+    <a href="/la-salle">La salle</a>
+    <a href="/tarifs">Tarifs</a>
+    <a href="/services">Services</a>
+    <a href="/galerie">Galerie</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <div class="header-actions">
+    <a href="/configurateur" class="btn btn-champagne header-cta desktop-only">Vérifier la disponibilité</a>
+    <button class="header-burger" id="menu-toggle" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero">
+    <span class="eyebrow">Services à la carte</span>
+    <h1>Personnalisez votre événement</h1>
+    <p>Technologie, instruments, décoration et services professionnels — à ajouter selon vos besoins.</p>
+  </section>
+
+  <section class="section" style="background:var(--blanc)">
+    <div class="wrap">
+      <div class="services-tabs reveal" id="services-tabs"></div>
+      <div id="services-panels" class="reveal"></div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--blanc-casse)">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <span class="eyebrow">Besoin d'aller plus loin ?</span>
+        <h2>Services spécialisés</h2>
+        <p>Des services spécialisés peuvent être organisés sur demande afin de simplifier la préparation de votre événement.</p>
+      </div>
+      <div class="specialized-grid reveal-stagger" id="specialized-grid"></div>
+      <div style="text-align:center;margin-top:40px" class="reveal">
+        <a href="/contact" class="btn btn-ligne">Demander une estimation</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--blanc)">
+    <div class="wrap" style="max-width:720px;text-align:center">
+      <div class="reveal">
+        <span class="eyebrow">Configurateur</span>
+        <h2 style="font-family:var(--serif);font-size:clamp(1.9rem,4.4vw,2.6rem);margin-top:12px">Envie de tout combiner ?</h2>
+        <p style="margin-top:16px;color:var(--gris-texte)">Le configurateur vous permet d'ajouter ces services à votre formule et de voir une estimation en temps réel.</p>
+        <a href="/configurateur" class="btn btn-champagne" style="margin-top:24px;display:inline-flex">Configurer mon événement</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></div>
+        <p>Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <a href="/">Accueil</a><a href="/la-salle">La salle</a><a href="/tarifs">Tarifs</a>
+        <a href="/services">Services</a><a href="/galerie">Galerie</a><a href="/configurateur">Configurateur</a>
+        <a href="/faq">FAQ</a><a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Coordonnées</h5>
+        <p>2136 A rue Pigeon<br>LaSalle, Québec</p>
+        <a href="tel:+14389359473">438-935-9473</a>
+        <a href="mailto:dons.potier@gmail.com">dons.potier@gmail.com</a>
+      </div>
+      <div class="footer-col">
+        <h5>Salle Le Potier</h5>
+        <p style="font-style:italic">Créez. Célébrez. Rassemblez.</p>
+        <a href="/configurateur">Configurer mon événement</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span id="year"></span> Salle Le Potier. Tous droits réservés.</span></div>
+  </div>
+</footer>
+
+<div id="mobile-sticky-cta">
+  <div class="msc-inner">
+    <a href="tel:+14389359473" class="msc-call">Appeler</a>
+    <a href="/configurateur" class="msc-book">Réserver</a>
+  </div>
+</div>
+
+<script src="/data/site-data.js"></script>
+<script src="/data/pricing.js"></script>
+<script src="/core.js"></script>
+<script src="/services.js"></script>
+</body>
+</html>

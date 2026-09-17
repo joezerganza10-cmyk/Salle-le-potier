@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact & réservation | Salle Le Potier — LaSalle</title>
+<meta name="description" content="Contactez Salle Le Potier pour vérifier la disponibilité de votre date. 2136 A rue Pigeon, LaSalle. 438-935-9473.">
+<link rel="canonical" href="https://salle-le-potier.ca/contact">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/assets/images/logo/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<noscript><style>.reveal,.reveal-stagger>*{opacity:1!important;transform:none!important}</style></noscript>
+</head>
+<body>
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<header id="site-header">
+  <a href="/" class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></a>
+  <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+    <a href="/">Accueil</a>
+    <a href="/la-salle">La salle</a>
+    <a href="/tarifs">Tarifs</a>
+    <a href="/services">Services</a>
+    <a href="/galerie">Galerie</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <div class="header-actions">
+    <a href="/configurateur" class="btn btn-champagne header-cta desktop-only">Vérifier la disponibilité</a>
+    <button class="header-burger" id="menu-toggle" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-hero">
+    <span class="eyebrow">Contact</span>
+    <h1>Vérifier la disponibilité</h1>
+    <p>Envoyez-nous votre demande — nous vous répondrons pour confirmer la disponibilité de votre date.</p>
+  </section>
+
+  <section class="section" style="background:var(--blanc)">
+    <div class="wrap" style="display:grid;grid-template-columns:1fr 1.3fr;gap:56px;align-items:start">
+      <div class="reveal">
+        <span class="eyebrow">Salle Le Potier</span>
+        <h2 style="font-family:var(--serif);font-size:1.8rem;margin-top:10px">2136 A rue Pigeon<br>LaSalle, Québec</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:26px">
+          <a href="tel:+14389359473" class="btn btn-noir">Appeler — 438-935-9473</a>
+          <a href="mailto:dons.potier@gmail.com" class="btn btn-ligne">Envoyer un courriel</a>
+          <a href="/configurateur" class="btn btn-ligne">Configurer mon événement</a>
+        </div>
+        <p class="form-note" style="margin-top:24px">Les instructions de dépôt, le cas échéant, seront communiquées lors de la confirmation de votre réservation.</p>
+      </div>
+
+      <form class="reveal" id="contact-form" style="transition-delay:.1s">
+        <div class="form-grid">
+          <div class="field"><label for="cf-name">Nom complet *</label><input id="cf-name" required></div>
+          <div class="field"><label for="cf-email">Courriel *</label><input id="cf-email" type="email" required></div>
+          <div class="field"><label for="cf-phone">Téléphone *</label><input id="cf-phone" type="tel" required></div>
+          <div class="field"><label for="cf-type">Type d'événement *</label><select id="cf-type" required></select></div>
+          <div class="field"><label for="cf-date">Date souhaitée *</label><input id="cf-date" type="date" required></div>
+          <div class="field"><label for="cf-guests">Nombre approximatif d'invités *</label><input id="cf-guests" type="number" min="1" required></div>
+          <div class="field full">
+            <label for="cf-package">Formule</label>
+            <select id="cf-package">
+              <option value="fourHours">4 heures — 800 $</option>
+              <option value="eightHours">8 heures — 1 200 $</option>
+              <option value="unsure">Je ne sais pas encore</option>
+            </select>
+          </div>
+          <div class="field full"><label for="cf-message">Message</label><textarea id="cf-message"></textarea></div>
+        </div>
+        <button type="submit" class="btn btn-noir" style="margin-top:24px">Envoyer ma demande</button>
+      </form>
+      <div id="contact-form-success" style="display:none;text-align:center;grid-column:2" class="reveal">
+        <h3 style="font-family:var(--serif);font-size:1.8rem">Merci.</h3>
+        <p style="margin-top:10px;color:var(--gris-texte)">Votre demande a bien été envoyée. L'équipe de Salle Le Potier communiquera avec vous afin de confirmer la disponibilité et finaliser votre événement.</p>
+        <div style="display:flex;gap:14px;margin-top:24px;justify-content:center">
+          <a href="tel:+14389359473" class="btn btn-noir">Appeler</a>
+          <a href="/" class="btn btn-ligne">Retourner à l'accueil</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></div>
+        <p>Une salle événementielle accueillante et polyvalente à LaSalle, pouvant recevoir plus de 350 personnes.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <a href="/">Accueil</a><a href="/la-salle">La salle</a><a href="/tarifs">Tarifs</a>
+        <a href="/services">Services</a><a href="/galerie">Galerie</a><a href="/configurateur">Configurateur</a>
+        <a href="/faq">FAQ</a><a href="/contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h5>Coordonnées</h5>
+        <p>2136 A rue Pigeon<br>LaSalle, Québec</p>
+        <a href="tel:+14389359473">438-935-9473</a>
+        <a href="mailto:dons.potier@gmail.com">dons.potier@gmail.com</a>
+      </div>
+      <div class="footer-col">
+        <h5>Salle Le Potier</h5>
+        <p style="font-style:italic">Créez. Célébrez. Rassemblez.</p>
+        <a href="/configurateur">Configurer mon événement</a>
+      </div>
+    </div>
+    <div class="footer-bottom"><span>© <span id="year"></span> Salle Le Potier. Tous droits réservés.</span></div>
+  </div>
+</footer>
+
+<div id="mobile-sticky-cta">
+  <div class="msc-inner">
+    <a href="tel:+14389359473" class="msc-call">Appeler</a>
+    <a href="/configurateur" class="msc-book">Réserver</a>
+  </div>
+</div>
+
+<script src="/data/site-data.js"></script>
+<script src="/data/events.js"></script>
+<script src="/core.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const select = document.getElementById('cf-type');
+  select.innerHTML = '<option value="" disabled selected>Sélectionnez…</option>' + EVENT_TYPES.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
+  document.getElementById('contact-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('contact-form').style.display = 'none';
+    document.getElementById('contact-form-success').style.display = 'block';
+  });
+});
+</script>
+</body>
+</html>

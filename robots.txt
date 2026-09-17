@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://salle-le-potier.ca/sitemap.xml
