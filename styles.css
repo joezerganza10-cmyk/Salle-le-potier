@@ -122,25 +122,20 @@ body.header-solid #site-header{background:rgba(17,17,17,.96);backdrop-filter:blu
 #hero{position:relative;min-height:92vh;display:flex;align-items:flex-end;overflow:hidden;background:var(--noir)}
 @media (max-width:760px){ #hero{min-height:100svh} }
 
-/* Vraie vidéo de Salle Le Potier en plein écran (voir index.html) — un seul calque,
-   object-fit:cover : jamais déformée, recadrée intelligemment via object-position
-   pour garder la salle (tables/décor) visible plutôt que le plafond. Léger grading
-   couleur (subtil) pour une tonalité plus chaleureuse et cinématographique. */
+/* Vraie photographie de Salle Le Potier en plein écran (voir index.html) —
+   object-fit:cover : jamais déformée. Cadrage via object-position pour garder
+   la scène/les lutrins/les chaises visibles ; le texte vit en bas à gauche.
+   Léger grading (subtil) pour une tonalité cinématographique — AUCUN flou. */
 .hero-media{position:absolute;inset:0;z-index:0;background:var(--noir)}
-.hero-video-fg{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 58%;
-  filter:saturate(1.08) contrast(1.05) brightness(.96);
+.hero-photo{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;
+  filter:saturate(1.04) contrast(1.03) brightness(.99);
 }
-@media (max-width:760px){ .hero-video-fg{object-position:center 42%} }
-
-.hero-sound-toggle{
-  position:absolute;z-index:2;bottom:26px;right:26px;width:36px;height:36px;border-radius:50%;
-  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);
-  display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.8);transition:background .25s var(--ease),color .25s var(--ease);
-}
-.hero-sound-toggle:hover{background:rgba(0,0,0,.5);color:var(--blanc)}
-.hero-sound-toggle svg{width:15px;height:15px}
-.hero-sound-toggle[aria-pressed="true"]{border-color:var(--champagne);color:var(--champagne)}
+/* Photo au format 4:3 : sur desktop (viewport plus large que la photo), le crop est
+   surtout vertical — la largeur entière (scène + chaises) reste visible. Sur mobile
+   (viewport bien plus étroit que haut), le crop devient horizontal et sévère : on
+   recentre sur la scène/tapis rouge, l'élément le plus reconnaissable en un coup d'œil. */
+@media (max-width:760px){ .hero-photo{object-position:35% center} }
 
 /* Overlay cinématographique très subtil : sombre juste ce qu'il faut, en bas à
    gauche (où vit le texte), la vidéo reste riche et lisible partout ailleurs. */
