@@ -4,11 +4,11 @@
  * `featured` = affiché dans le bloc "Une salle, mille possibilités" de l'accueil.
  */
 const EVENT_TYPES = [
-  { id:'mariage', label:'Mariage', featured:true },
-  { id:'anniversaire', label:'Anniversaire', featured:true },
+  { id:'mariage', label:'Mariage', featured:true, photo:'/assets/images/events/mariage.png' },
+  { id:'anniversaire', label:'Anniversaire', featured:true, photo:'/assets/images/events/anniversaire.png' },
   { id:'baby-shower', label:'Baby shower', featured:false },
-  { id:'conference', label:'Conférence', featured:true },
-  { id:'gala-banquet', label:'Gala / banquet', featured:true },
+  { id:'conference', label:'Conférence', featured:true, photo:'/assets/images/events/conference.png' },
+  { id:'gala-banquet', label:'Gala / banquet', featured:true, photo:'/assets/images/events/gala-banquet.png' },
   { id:'corporatif', label:'Événement corporatif', featured:false },
   { id:'celebration-familiale', label:'Célébration familiale', featured:false },
   { id:'communautaire', label:'Événement communautaire', featured:false },

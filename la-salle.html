@@ -144,7 +144,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // #included-list et #amenities-grid sont déjà peuplés par l'init globale de home.js.
   const grid = document.getElementById('events-grid-full');
-  if (grid) grid.innerHTML = EVENT_TYPES.map(e => `<a href="/evenements#${e.id}" class="event-card">${placeholderHTML(e.label)}<h3>${e.label}</h3></a>`).join('');
+  if (grid) grid.innerHTML = EVENT_TYPES.map(e => `<a href="/evenements#${e.id}" class="event-card">${e.photo ? `<img src="${e.photo}" alt="${e.label} à Salle Le Potier" loading="lazy">` : placeholderHTML(e.label)}<h3>${e.label}</h3></a>`).join('');
 });
 </script>
 </body>

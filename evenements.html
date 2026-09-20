@@ -106,7 +106,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const el = document.getElementById('events-grid-all');
-  el.innerHTML = EVENT_TYPES.map(e => `<a href="/configurateur?eventType=${e.id}" class="event-card" id="${e.id}">${placeholderHTML(e.label)}<h3>${e.label}</h3></a>`).join('');
+  el.innerHTML = EVENT_TYPES.map(e => `<a href="/configurateur?eventType=${e.id}" class="event-card" id="${e.id}">${e.photo ? `<img src="${e.photo}" alt="${e.label} à Salle Le Potier" loading="lazy">` : placeholderHTML(e.label)}<h3>${e.label}</h3></a>`).join('');
 });
 </script>
 </body>

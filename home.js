@@ -27,7 +27,7 @@ function renderEventsGrid(){
   const featured = EVENT_TYPES.filter(e => e.featured);
   el.innerHTML = featured.map(e => `
     <a href="/evenements#${e.id}" class="event-card">
-      ${placeholderHTML(e.label)}
+      ${e.photo ? `<img src="${e.photo}" alt="${e.label} à Salle Le Potier" loading="lazy">` : placeholderHTML(e.label)}
       <h3>${e.label}</h3>
     </a>`).join('');
 }
