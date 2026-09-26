@@ -26,6 +26,7 @@
       <a href="/services">Services</a>
       <a href="/galerie">Galerie</a>
       <a href="/faq">FAQ</a>
+      <a href="/reservation">Réservation</a>
       <div class="header-nav-mobile-extra">
         <a href="/configurateur" class="btn btn-champagne">Réserver</a>
         <a href="tel:+14389359473" class="header-nav-phone">438-935-9473</a>
@@ -147,5 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (grid) grid.innerHTML = EVENT_TYPES.map(e => `<a href="/evenements#${e.id}" class="event-card">${e.photo ? `<img src="${e.photo}" alt="${e.label} à Salle Le Potier" loading="lazy">` : placeholderHTML(e.label)}<h3>${e.label}</h3></a>`).join('');
 });
 </script>
+<script src="/kreovya-widget.js" data-tenant="salle-le-potier" defer></script>
 </body>
 </html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finaliser ma réservation | Salle Le Potier</title>
+<meta name="description" content="Finalisez votre réservation à Salle Le Potier, LaSalle.">
+<link rel="canonical" href="https://salle-le-potier.ca/reservation">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/images/logo/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  /* Styles propres à cette page uniquement — mêmes tokens que styles.css (:root), aucune couleur nouvelle inventée. */
+  .rsv-wrap{max-width:640px;margin:0 auto;padding:140px 20px 96px}
+  .rsv-state{text-align:center;padding:48px 20px}
+  .rsv-card{background:var(--blanc);border:1px solid var(--ligne);border-radius:14px;padding:28px 26px;margin-bottom:20px}
+  .rsv-card h2{font-family:var(--serif);font-weight:500;font-size:19px;margin:0 0 16px}
+  .rsv-row{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--ligne);font-size:14.5px}
+  .rsv-row:last-child{border-bottom:none}
+  .rsv-row .label{color:var(--gris-texte)}
+  .rsv-row .value{font-weight:600;text-align:right}
+  .rsv-row.total .value{color:var(--champagne);font-size:19px}
+  .rsv-countdown{text-align:center;padding:16px;background:var(--champagne-doux);border:1px solid rgba(198,166,106,.35);border-radius:12px;margin-bottom:22px}
+  .rsv-countdown .time{font-family:var(--serif);font-size:28px;color:var(--champagne);letter-spacing:1px;font-variant-numeric:tabular-nums}
+  .rsv-countdown .caption{font-size:11.5px;color:var(--gris-texte);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+  .rsv-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media (max-width:560px){.rsv-form-grid{grid-template-columns:1fr}}
+  #payment-area{min-height:56px;display:flex;align-items:center;justify-content:center}
+  .rsv-pending-box{background:var(--champagne-doux);border:1px solid rgba(198,166,106,.35);border-radius:12px;padding:20px;text-align:center;font-size:14px;color:var(--noir);line-height:1.6}
+  .rsv-error-box{background:#fdf0ee;border:1px solid #e7b9b0;border-radius:12px;padding:16px 18px;text-align:center;font-size:14px;color:#8c342a;margin-bottom:16px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body class="header-solid">
+<a href="#main" class="skip-link">Aller au contenu principal</a>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="/" class="logo-badge"><img src="/assets/images/logo/logo.webp" alt="Salle Le Potier"></a>
+    <nav class="header-nav" id="header-nav" aria-label="Navigation principale">
+      <a href="/">Accueil</a>
+      <a href="/la-salle">La salle</a>
+      <a href="/tarifs">Tarifs</a>
+      <a href="/services">Services</a>
+      <a href="/galerie">Galerie</a>
+      <a href="/faq">FAQ</a>
+      <div class="header-nav-mobile-extra">
+        <a href="tel:+14389359473" class="header-nav-phone">438-935-9473</a>
+      </div>
+    </nav>
+    <div class="header-actions">
+      <a href="tel:+14389359473" class="btn btn-champagne header-cta desktop-only">438-935-9473</a>
+      <button class="header-burger" id="menu-toggle" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="rsv-wrap">
+
+    <div id="state-loading" class="rsv-state">
+      <p>Chargement de votre réservation…</p>
+    </div>
+
+    <div id="state-error" class="rsv-state" hidden>
+      <div class="rsv-error-box"><p id="error-message">Une erreur est survenue.</p></div>
+      <a href="/" class="btn btn-noir" style="margin-top:16px">Retour à l'accueil</a>
+    </div>
+
+    <div id="state-expired" class="rsv-state" hidden>
+      <div class="rsv-error-box"><p>Le délai de réservation a expiré. Veuillez vérifier de nouveau la disponibilité auprès de notre assistant.</p></div>
+      <a href="/" class="btn btn-noir" style="margin-top:16px">Retour à l'accueil</a>
+    </div>
+
+    <div id="state-confirmed" class="rsv-state" hidden>
+      <h1 class="serif" style="font-size:28px;margin-bottom:12px">Réservation confirmée</h1>
+      <p style="color:var(--gris-texte)">Merci ! Votre paiement a été reçu et votre créneau est confirmé. Notre équipe communiquera avec vous pour la suite (contrat et détails).</p>
+    </div>
+
+    <div id="state-review" class="rsv-state" hidden>
+      <h1 class="serif" style="font-size:26px;margin-bottom:12px">Vérification en cours</h1>
+      <p style="color:var(--gris-texte)">Votre paiement a bien été reçu. La confirmation finale de votre réservation nécessite une courte vérification par notre équipe — vous serez contacté(e) rapidement.</p>
+      <p style="color:var(--gris-texte);font-size:13px;margin-top:12px">Référence à conserver : <strong id="review-reference"></strong></p>
+    </div>
+
+    <div id="state-checkout" hidden>
+      <h1 class="serif" style="font-size:28px;text-align:center;margin-bottom:8px">Finaliser ma réservation</h1>
+      <p style="text-align:center;color:var(--gris-texte);font-size:14px;margin-bottom:28px">Un dernier pas avant de confirmer votre événement à Salle Le Potier.</p>
+
+      <div class="rsv-countdown">
+        <div class="time" id="countdown-time">--:--</div>
+        <div class="caption">temps restant pour compléter le paiement</div>
+      </div>
+
+      <div class="rsv-card">
+        <h2>Votre événement</h2>
+        <div class="rsv-row"><span class="label">Salle</span><span class="value" id="info-room">—</span></div>
+        <div class="rsv-row"><span class="label">Date</span><span class="value" id="info-date">—</span></div>
+        <div class="rsv-row"><span class="label">Horaire</span><span class="value" id="info-time">—</span></div>
+      </div>
+
+      <div class="rsv-card">
+        <h2>Vos coordonnées</h2>
+        <div class="rsv-form-grid">
+          <div class="field"><label for="cf-name">Nom complet</label><input id="cf-name"></div>
+          <div class="field"><label for="cf-email">Courriel</label><input id="cf-email" type="email"></div>
+          <div class="field"><label for="cf-phone">Téléphone</label><input id="cf-phone" type="tel"></div>
+        </div>
+      </div>
+
+      <div class="rsv-card">
+        <h2>Paiement</h2>
+        <div class="rsv-row total"><span class="label">Montant dû</span><span class="value" id="info-amount">—</span></div>
+      </div>
+
+      <div class="rsv-card">
+        <h2>Paiement sécurisé</h2>
+        <div id="payment-area">
+          <div class="rsv-pending-box">Le paiement en ligne pour Salle Le Potier est en cours de configuration. Merci de nous contacter au <a href="tel:+14389359473">438-935-9473</a> pour finaliser votre réservation.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('session');
+
+  var els = {};
+  ['state-loading','state-error','error-message','state-expired','state-confirmed','state-review','review-reference','state-checkout',
+   'countdown-time','info-room','info-date','info-time','cf-name','cf-email','cf-phone','info-amount','payment-area']
+    .forEach(function (id) { els[id] = document.getElementById(id); });
+
+  function showOnly(key) {
+    ['state-loading','state-error','state-expired','state-confirmed','state-review','state-checkout'].forEach(function (k) {
+      els[k].hidden = (k !== key);
+    });
+  }
+
+  function money(n) {
+    if (typeof n !== 'number') return '—';
+    return n.toLocaleString('fr-CA', { style: 'currency', currency: 'CAD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    var parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    var d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+    return d.toLocaleDateString('fr-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+  }
+
+  // Doit rester synchronisé avec kreovya/config/tenants.js (rooms[0].packages)
+  // et netlify/functions/verify-payment.js (ROOM_PRICING) — affichage
+  // uniquement, le montant réellement dû est toujours revérifié côté serveur.
+  var PACKAGES = [{ hours: 4, price: 800 }, { hours: 8, price: 1200 }];
+  var EXTRA_HOUR_PRICE = 200;
+  function computeAmount(hours) {
+    var fitting = PACKAGES.find(function (p) { return hours <= p.hours; });
+    if (fitting) return fitting.price;
+    var longest = PACKAGES[PACKAGES.length - 1];
+    return longest.price + Math.ceil(hours - longest.hours) * EXTRA_HOUR_PRICE;
+  }
+
+  var countdownTimer = null;
+  function startCountdown(expiresAtIso) {
+    var expiresAtMs = new Date(expiresAtIso).getTime();
+    function tick() {
+      var remainingMs = expiresAtMs - Date.now();
+      if (remainingMs <= 0) {
+        clearInterval(countdownTimer);
+        showOnly('state-expired');
+        return;
+      }
+      var totalSeconds = Math.floor(remainingMs / 1000);
+      var mm = Math.floor(totalSeconds / 60);
+      var ss = totalSeconds % 60;
+      els['countdown-time'].textContent = String(mm).padStart(2, '0') + ':' + String(ss).padStart(2, '0');
+    }
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+  }
+
+  var startHours = 4;
+
+  function render(data) {
+    if (data.status === 'confirmed') {
+      showOnly('state-confirmed');
+      return;
+    }
+
+    els['info-room'].textContent = data.resource && data.resource.name ? data.resource.name : '—';
+    els['info-date'].textContent = data.period ? formatDate(data.period.date) : '—';
+    els['info-time'].textContent = (data.period && data.period.startTime && data.period.endTime)
+      ? (data.period.startTime + ' à ' + data.period.endTime)
+      : '—';
+
+    if (data.period && data.period.startTime && data.period.endTime) {
+      var s = data.period.startTime.split(':').map(Number);
+      var e = data.period.endTime.split(':').map(Number);
+      var startMin = s[0] * 60 + s[1];
+      var endMin = e[0] * 60 + e[1];
+      if (endMin <= startMin) endMin += 24 * 60; // passage après minuit
+      startHours = (endMin - startMin) / 60;
+    }
+    els['info-amount'].textContent = money(computeAmount(startHours));
+
+    if (data.lead) {
+      if (data.lead.fullName) els['cf-name'].value = data.lead.fullName;
+      if (data.lead.email) els['cf-email'].value = data.lead.email;
+      if (data.lead.phone) els['cf-phone'].value = data.lead.phone;
+    }
+
+    showOnly('state-checkout');
+    startCountdown(data.holdExpiresAt);
+
+    if (data.paymentEnabled && data.paypalClientId) {
+      initPaypal(data.paypalClientId);
+    }
+    // Sinon, le message "paiement en configuration" déjà présent dans le
+    // HTML reste affiché (aucun bouton PayPal rendu).
+  }
+
+  var paypalSdkLoading = null;
+  function loadPaypalSdk(clientId, onReady) {
+    if (window.paypal) { onReady(); return; }
+    if (paypalSdkLoading) { paypalSdkLoading.push(onReady); return; }
+    paypalSdkLoading = [onReady];
+    var s = document.createElement('script');
+    s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(clientId) + '&currency=CAD&locale=fr_CA&intent=capture';
+    s.onload = function () { paypalSdkLoading.forEach(function (fn) { fn(); }); paypalSdkLoading = null; };
+    document.head.appendChild(s);
+  }
+
+  function renderPaymentMessage(message, showRetry, onRetry) {
+    els['payment-area'].innerHTML = '';
+    var p = document.createElement('p');
+    p.style.cssText = 'text-align:center;font-size:14px;margin:0 0 10px';
+    p.textContent = message;
+    els['payment-area'].appendChild(p);
+    if (showRetry) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-champagne';
+      btn.textContent = 'Réessayer';
+      btn.style.cssText = 'display:block;margin:0 auto';
+      btn.addEventListener('click', onRetry);
+      els['payment-area'].appendChild(btn);
+    }
+  }
+
+  function verifyWithRetry(orderID, attemptsLeft) {
+    fetch('/.netlify/functions/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderID: orderID, sessionToken: token }),
+    })
+      .then(function (res) { return res.json().then(function (json) { return { status: res.status, json: json }; }); })
+      .then(function (result) {
+        if (result.json && result.json.verified) {
+          if (result.json.bookingConfirmed) {
+            showOnly('state-confirmed');
+          } else {
+            els['review-reference'].textContent = result.json.captureId || result.json.orderId || '—';
+            showOnly('state-review');
+          }
+          return;
+        }
+        if (result.json && /délai|expiré/i.test(result.json.message || '')) {
+          showOnly('state-expired');
+          return;
+        }
+        renderPaymentMessage((result.json && result.json.message) || 'Le paiement n\'a pas pu être confirmé.', true, function () {
+          verifyWithRetry(orderID, 3);
+        });
+      })
+      .catch(function () {
+        renderPaymentMessage('Impossible de contacter le serveur.', true, function () {
+          verifyWithRetry(orderID, 3);
+        });
+      });
+  }
+
+  function initPaypal(clientId) {
+    loadPaypalSdk(clientId, function () {
+      if (!window.paypal) return;
+      els['payment-area'].innerHTML = '';
+      window.paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
+        createOrder: function (data, actions) {
+          return actions.order.create({
+            purchase_units: [{ amount: { value: computeAmount(startHours).toFixed(2), currency_code: 'CAD' }, description: 'Réservation Salle Le Potier' } ],
+          });
+        },
+        onApprove: function (data) {
+          renderPaymentMessage('Vérification de votre paiement…', false);
+          verifyWithRetry(data.orderID, 3);
+          return Promise.resolve();
+        },
+        onError: function () {
+          renderPaymentMessage('Une erreur est survenue avec PayPal. Veuillez réessayer.', true, function () { initPaypal(clientId); });
+        },
+      }).render('#payment-area');
+    });
+  }
+
+  function loadReservation() {
+    if (!token) {
+      els['error-message'].textContent = 'Lien de réservation invalide.';
+      showOnly('state-error');
+      return;
+    }
+    fetch('/.netlify/functions/resolve-reservation-prefill?session=' + encodeURIComponent(token))
+      .then(function (res) { return res.json().then(function (json) { return { ok: res.ok, json: json }; }); })
+      .then(function (result) {
+        if (!result.ok || !result.json || !result.json.success) {
+          if (result.json && /délai|expiré/i.test(result.json.message || '')) {
+            showOnly('state-expired');
+            return;
+          }
+          els['error-message'].textContent = (result.json && result.json.message) || 'Réservation introuvable.';
+          showOnly('state-error');
+          return;
+        }
+        render(result.json);
+      })
+      .catch(function () {
+        els['error-message'].textContent = 'Impossible de contacter le serveur. Veuillez réessayer.';
+        showOnly('state-error');
+      });
+  }
+
+  loadReservation();
+})();
+</script>
+
+<script src="/kreovya-widget.js" data-tenant="salle-le-potier" defer></script>
+</body>
+</html>
