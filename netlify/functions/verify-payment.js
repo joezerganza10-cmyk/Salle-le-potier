@@ -20,6 +20,7 @@
 
 const { supabaseRequest, supabaseRpc } = require('../../kreovya/lib/supabaseRest');
 const { parseRangeBounds } = require('../../kreovya/lib/postgresRange');
+const { listTenantIds } = require('../../kreovya/config/tenants');
 
 // Doit rester synchronisé avec kreovya/config/tenants.js (rooms[0].packages).
 const ROOM_PRICING = {
@@ -96,17 +97,37 @@ async function captureOrder(orderID, accessToken) {
  * paiement côté Supabase (begin_prefill_payment) → dérive roomId/hours RÉELS
  * depuis le booking Supabase (jamais depuis le navigateur). Identique au
  * mécanisme validé sur salle906-site-deploy.
+ *
+ * FRONTIÈRE MULTI-TENANT (corrigée le 28 septembre 2026 — voir audit) :
+ * même correction que resolve-reservation-prefill.js — `prefill_tokens` est
+ * une table partagée entre tenants ; la requête est bornée à
+ * `listTenantIds()` (source d'autorité serveur = kreovya/config/tenants.js
+ * de CE site) AVANT même de rapatrier la ligne, pour qu'un token d'un autre
+ * tenant ne puisse jamais déclencher (ni même effleurer) un paiement ici.
  */
 async function resolvePrefillBooking(sessionToken) {
+  const allowedTenantIds = listTenantIds();
+  if (allowedTenantIds.length === 0) {
+    console.error('[verify-payment] Aucun tenant actif configuré sur ce site.');
+    return { ok: false, message: 'Lien de réservation introuvable.' };
+  }
+
   let tokenRows;
   try {
-    const query = [`token=eq.${encodeURIComponent(sessionToken)}`, 'select=tenant_id,booking_id', 'limit=1'].join('&');
+    const query = [
+      `token=eq.${encodeURIComponent(sessionToken)}`,
+      `tenant_id=in.(${allowedTenantIds.map(encodeURIComponent).join(',')})`,
+      'select=tenant_id,booking_id',
+      'limit=1',
+    ].join('&');
     tokenRows = await supabaseRequest('prefill_tokens', { query, quiet: true });
   } catch {
     return { ok: false, message: 'Erreur serveur.' };
   }
   const tokenRow = Array.isArray(tokenRows) && tokenRows[0];
   if (!tokenRow) {
+    // Générique : token inexistant, expiré, OU appartenant à un autre
+    // tenant — indiscernable pour l'appelant, jamais de détail.
     return { ok: false, message: 'Lien de réservation introuvable.' };
   }
   const tenantId = tokenRow.tenant_id;

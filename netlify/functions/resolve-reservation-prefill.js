@@ -7,10 +7,22 @@
  *
  * Revérifie TOUJOURS l'état réel du booking (status='hold', hold_expires_at
  * > now()) — jamais une copie figée qui pourrait devenir mensongère.
+ *
+ * FRONTIÈRE MULTI-TENANT (corrigée le 28 septembre 2026 — voir audit) :
+ * `prefill_tokens` est une table PARTAGÉE entre tous les tenants (même
+ * projet Supabase). Une recherche par token seul, sans borner tenant_id à
+ * ce que CE déploiement sert réellement, permettrait à un token créé pour
+ * un autre tenant (physiquement un autre site Netlify) d'être résolu ici.
+ * `listTenantIds()` est la source d'autorité SERVEUR (le contenu même de
+ * kreovya/config/tenants.js — jamais une valeur fournie par le navigateur)
+ * pour "quel(s) tenant(s) ce site sert" : elle borne la requête Supabase
+ * elle-même, si bien qu'une ligne appartenant à un autre tenant n'est même
+ * jamais rapatriée. Toutes les requêtes suivantes (booking/resource/lead)
+ * restent en plus filtrées par ce même tenantId — double barrière.
  */
 
 const { supabaseRequest } = require('../../kreovya/lib/supabaseRest');
-const { getTenant } = require('../../kreovya/config/tenants');
+const { getTenant, listTenantIds } = require('../../kreovya/config/tenants');
 const { parseRangeBounds } = require('../../kreovya/lib/postgresRange');
 const { describeInstantInZone } = require('../../kreovya/lib/timezone');
 
@@ -28,9 +40,25 @@ exports.handler = async (event) => {
     return json(400, { success: false, message: 'Paramètre "session" requis.' });
   }
 
+  // Tenant(s) que CE site sert réellement — jamais déduit de la requête du
+  // navigateur, jamais du contenu du token lui-même avant vérification.
+  const allowedTenantIds = listTenantIds();
+  if (allowedTenantIds.length === 0) {
+    // Ne devrait jamais arriver en fonctionnement normal : aucun tenant actif
+    // configuré sur ce déploiement. Fail closed plutôt que de risquer une
+    // requête Supabase non bornée.
+    console.error('[resolve-reservation-prefill] Aucun tenant actif configuré sur ce site.');
+    return json(404, { success: false, message: 'Lien de réservation introuvable.' });
+  }
+
   let tokenRows;
   try {
-    const query = [`token=eq.${encodeURIComponent(token)}`, 'select=tenant_id,booking_id', 'limit=1'].join('&');
+    const query = [
+      `token=eq.${encodeURIComponent(token)}`,
+      `tenant_id=in.(${allowedTenantIds.map(encodeURIComponent).join(',')})`,
+      'select=tenant_id,booking_id',
+      'limit=1',
+    ].join('&');
     tokenRows = await supabaseRequest('prefill_tokens', { query, quiet: true });
   } catch (err) {
     console.error('[resolve-reservation-prefill] Erreur lecture token', err && err.message);
@@ -38,7 +66,9 @@ exports.handler = async (event) => {
   }
   const tokenRow = Array.isArray(tokenRows) && tokenRows[0];
   if (!tokenRow) {
-    // Générique : ne révèle jamais si le token est malformé, inexistant, ou expiré.
+    // Générique : ne révèle jamais si le token est malformé, inexistant,
+    // expiré, OU réel mais appartenant à un autre tenant — ces cas sont
+    // volontairement indiscernables pour l'appelant.
     return json(404, { success: false, message: 'Lien de réservation introuvable.' });
   }
 
