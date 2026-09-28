@@ -90,11 +90,11 @@
   // styles.css à la racine de ce projet) — jamais une teinte réutilisée telle
   // quelle d'un autre tenant : le widget doit se fondre visuellement dans
   // CE site précis, jamais donner l'impression d'un module rapporté d'ailleurs.
-  var DEFAULT_ACCENT = '#C6A66A';        // --champagne (styles.css) — accent uniquement
-  var DEFAULT_INK = '#111111';           // --noir (styles.css)
-  var DEFAULT_CARD = '#1a1a1a';          // --noir-doux (styles.css), bulles visiteur
-  var DEFAULT_IVORY = '#F7F5F1';         // --blanc-casse (styles.css), bulles assistant
-  var DEFAULT_FG = '#F7F5F1';            // texte clair sur fond sombre (même ton que l'ivoire)
+  var DEFAULT_ACCENT = '#c9a463';        // --champagne (styles.css) — accent uniquement
+  var DEFAULT_INK = '#16140f';           // --noir (styles.css)
+  var DEFAULT_CARD = '#1b1913';          // --noir-doux (styles.css), bulles visiteur
+  var DEFAULT_IVORY = '#f6f2ea';         // --blanc-casse (styles.css), bulles assistant
+  var DEFAULT_FG = '#f6f2ea';            // texte clair sur fond sombre (même ton que l'ivoire)
   var DEFAULT_ASSISTANT_NAME = 'KREOVYA';
   var DEFAULT_POSITION = 'right';
 
