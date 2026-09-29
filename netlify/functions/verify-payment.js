@@ -1,43 +1,22 @@
 // KREOVYA AI — Salle Le Potier — Vérifie et capture une commande PayPal
 // ============================================================
-// Copie adaptée du pont KREOVYA validé sur salle906-site-deploy (même
-// architecture : resolvePrefillBooking → begin_prefill_payment (verrouille la
-// fenêtre AVANT tout appel PayPal) → capture PayPal → confirm_booking_from_
-// prefill_token). Deux différences assumées pour Salle Le Potier :
+// Pont KREOVYA générique (voir kreovya/lib/resolvePrefillToken.js et
+// kreovya/lib/pricingEngine.js — partagés avec resolve-reservation-prefill.js
+// et kreovya-agent.js) + verrouillage transactionnel propre au paiement
+// (begin_prefill_payment, confirm_booking_from_prefill_token).
 //
-//   1. Une seule salle, un seul tarif à deux forfaits fixes (4h/8h + heure
-//      supplémentaire) — pas de notion de "dépôt" (aucune politique de dépôt
-//      n'existe pour ce tenant, voir kreovya/config/tenants.js). Le montant
-//      dû est TOUJOURS le prix plein du forfait applicable.
-//
-//   2. PAIEMENT RÉEL VOLONTAIREMENT DÉSACTIVÉ tant que PAYPAL_CLIENT_ID /
-//      PAYPAL_CLIENT_SECRET / PAYPAL_ENV propres à Salle Le Potier ne sont
-//      pas configurés dans les variables d'environnement de CE site Netlify.
-//      Cette fonction ne lit JAMAIS les identifiants d'un autre tenant — il
-//      n'existe techniquement aucun moyen pour elle de le faire (site Netlify
-//      distinct, variables d'environnement distinctes). Si non configuré,
-//      elle refuse explicitement (fail closed) avant tout appel PayPal.
+// PAIEMENT RÉEL VOLONTAIREMENT DÉSACTIVÉ tant que PAYPAL_CLIENT_ID /
+// PAYPAL_CLIENT_SECRET / PAYPAL_ENV propres à Salle Le Potier ne sont pas
+// configurés dans les variables d'environnement de CE site Netlify. Cette
+// fonction ne lit JAMAIS les identifiants d'un autre tenant — il n'existe
+// techniquement aucun moyen pour elle de le faire (site Netlify distinct,
+// variables d'environnement distinctes). Si non configuré, elle refuse
+// explicitement (fail closed) avant tout appel PayPal.
 
-const { supabaseRequest, supabaseRpc } = require('../../kreovya/lib/supabaseRest');
+const { supabaseRpc } = require('../../kreovya/lib/supabaseRest');
 const { parseRangeBounds } = require('../../kreovya/lib/postgresRange');
-const { listTenantIds } = require('../../kreovya/config/tenants');
-
-// Doit rester synchronisé avec kreovya/config/tenants.js (rooms[0].packages).
-const ROOM_PRICING = {
-  principale: { packages: [{ hours: 4, price: 800 }, { hours: 8, price: 1200 }], extraHourPrice: 200 },
-};
-
-function computeExpectedAmount({ roomId, hours }) {
-  const room = ROOM_PRICING[roomId];
-  if (!room) return { error: 'unknown_room' };
-  const safeHours = Number(hours) > 0 ? Number(hours) : room.packages[0].hours;
-  const sorted = room.packages.slice().sort((a, b) => a.hours - b.hours);
-  const fitting = sorted.find((pkg) => safeHours <= pkg.hours);
-  if (fitting) return { amount: fitting.price };
-  const longest = sorted[sorted.length - 1];
-  const extraHours = Math.ceil(safeHours - longest.hours);
-  return { amount: longest.price + extraHours * room.extraHourPrice };
-}
+const { resolvePrefillToken } = require('../../kreovya/lib/resolvePrefillToken');
+const { calculatePrice } = require('../../kreovya/lib/pricingEngine');
 
 function paymentConfigured() {
   const env = (process.env.PAYPAL_ENV || '').toLowerCase();
@@ -93,45 +72,21 @@ async function captureOrder(orderID, accessToken) {
 }
 
 /**
- * Résout un sessionToken KREOVYA (prefill_tokens) → verrouille la fenêtre de
- * paiement côté Supabase (begin_prefill_payment) → dérive roomId/hours RÉELS
- * depuis le booking Supabase (jamais depuis le navigateur). Identique au
- * mécanisme validé sur salle906-site-deploy.
+ * Résout un sessionToken KREOVYA → verrouille la fenêtre de paiement côté
+ * Supabase (begin_prefill_payment, AVANT tout appel PayPal) → dérive
+ * resourceSlug/hours RÉELS depuis le booking Supabase (jamais du navigateur).
  *
- * FRONTIÈRE MULTI-TENANT (corrigée le 28 septembre 2026 — voir audit) :
- * même correction que resolve-reservation-prefill.js — `prefill_tokens` est
- * une table partagée entre tenants ; la requête est bornée à
- * `listTenantIds()` (source d'autorité serveur = kreovya/config/tenants.js
- * de CE site) AVANT même de rapatrier la ligne, pour qu'un token d'un autre
- * tenant ne puisse jamais déclencher (ni même effleurer) un paiement ici.
+ * La frontière multi-tenant (prefill_tokens partagée entre tenants) vit
+ * désormais dans kreovya/lib/resolvePrefillToken.js — même implémentation
+ * que resolve-reservation-prefill.js, pour qu'un token d'un autre tenant ne
+ * puisse jamais, ici non plus, déclencher un paiement.
  */
 async function resolvePrefillBooking(sessionToken) {
-  const allowedTenantIds = listTenantIds();
-  if (allowedTenantIds.length === 0) {
-    console.error('[verify-payment] Aucun tenant actif configuré sur ce site.');
-    return { ok: false, message: 'Lien de réservation introuvable.' };
+  const resolved = await resolvePrefillToken(sessionToken);
+  if (!resolved.ok) {
+    return { ok: false, message: resolved.message };
   }
-
-  let tokenRows;
-  try {
-    const query = [
-      `token=eq.${encodeURIComponent(sessionToken)}`,
-      `tenant_id=in.(${allowedTenantIds.map(encodeURIComponent).join(',')})`,
-      'select=tenant_id,booking_id',
-      'limit=1',
-    ].join('&');
-    tokenRows = await supabaseRequest('prefill_tokens', { query, quiet: true });
-  } catch {
-    return { ok: false, message: 'Erreur serveur.' };
-  }
-  const tokenRow = Array.isArray(tokenRows) && tokenRows[0];
-  if (!tokenRow) {
-    // Générique : token inexistant, expiré, OU appartenant à un autre
-    // tenant — indiscernable pour l'appelant, jamais de détail.
-    return { ok: false, message: 'Lien de réservation introuvable.' };
-  }
-  const tenantId = tokenRow.tenant_id;
-  const bookingId = tokenRow.booking_id;
+  const { tenantId, bookingId, booking, resource } = resolved;
 
   let rpcResult;
   try {
@@ -149,45 +104,23 @@ async function resolvePrefillBooking(sessionToken) {
     return { ok: false, message: 'Le délai de réservation a expiré. Veuillez vérifier de nouveau la disponibilité.' };
   }
 
-  let bookingRows;
-  try {
-    const query = [
-      `id=eq.${encodeURIComponent(bookingId)}`,
-      `tenant_id=eq.${encodeURIComponent(tenantId)}`,
-      'select=resource_id,period',
-    ].join('&');
-    bookingRows = await supabaseRequest('bookings', { query });
-  } catch {
-    return { ok: false, message: 'Erreur serveur.' };
-  }
-  const booking = Array.isArray(bookingRows) && bookingRows[0];
-  if (!booking) {
-    return { ok: false, message: 'Réservation introuvable.' };
-  }
-
   const bounds = parseRangeBounds(booking.period);
   if (!bounds) {
     return { ok: false, message: 'Erreur serveur.' };
   }
-  const hours = (bounds.upperMs - bounds.lowerMs) / (1000 * 60 * 60);
 
-  let resourceRows;
-  try {
-    const query = [
-      `id=eq.${encodeURIComponent(booking.resource_id)}`,
-      `tenant_id=eq.${encodeURIComponent(tenantId)}`,
-      'select=slug',
-    ].join('&');
-    resourceRows = await supabaseRequest('resources', { query });
-  } catch {
-    return { ok: false, message: 'Erreur serveur.' };
-  }
-  const resource = Array.isArray(resourceRows) && resourceRows[0];
   if (!resource) {
     return { ok: false, message: 'Ressource introuvable.' };
   }
 
-  return { ok: true, tenantId, bookingId, roomId: resource.slug, hours };
+  return {
+    ok: true,
+    tenantId,
+    bookingId,
+    resourceSlug: resource.slug,
+    startIso: new Date(bounds.lowerMs).toISOString(),
+    endIso: new Date(bounds.upperMs).toISOString(),
+  };
 }
 
 exports.handler = async (event) => {
@@ -212,7 +145,7 @@ exports.handler = async (event) => {
     return jsonResponse(400, { verified: false, message: 'Requête invalide.' });
   }
 
-  const { orderID, sessionToken } = payload;
+  const { orderID, sessionToken, paymentOption, cleaningSelected } = payload;
   if (!orderID || typeof orderID !== 'string') {
     return jsonResponse(400, { verified: false, message: 'Identifiant de commande PayPal manquant.' });
   }
@@ -226,11 +159,20 @@ exports.handler = async (event) => {
     return jsonResponse(409, { verified: false, message: resolved.message });
   }
 
-  const expected = computeExpectedAmount({ roomId: resolved.roomId, hours: resolved.hours });
-  if (expected.error === 'unknown_room') {
-    return jsonResponse(400, { verified: false, message: 'Salle sélectionnée invalide.' });
+  // Source AUTORITAIRE unique du montant — la même que celle utilisée par
+  // kreovya-agent.js pour décrire le tarif au visiteur (kreovya/lib/pricingEngine.js).
+  const expected = calculatePrice({
+    tenantId: resolved.tenantId,
+    resourceSlug: resolved.resourceSlug,
+    startIso: resolved.startIso,
+    endIso: resolved.endIso,
+    paymentOption,
+    cleaningSelected,
+  });
+  if (!expected.ok) {
+    return jsonResponse(400, { verified: false, message: expected.message });
   }
-  const expectedAmount = expected.amount;
+  const expectedAmount = expected.amountDue;
 
   try {
     const accessToken = await getAccessToken();
@@ -253,7 +195,7 @@ exports.handler = async (event) => {
     const capturedAmount = parseFloat(capture.amount.value);
     const capturedCurrency = capture.amount.currency_code;
     const amountMatches = Math.abs(capturedAmount - expectedAmount) < 0.01;
-    const currencyMatches = capturedCurrency === 'CAD';
+    const currencyMatches = capturedCurrency === expected.currency;
 
     if (!amountMatches || !currencyMatches) {
       return jsonResponse(200, { verified: false, message: 'Le montant confirmé par PayPal ne correspond pas à la réservation. Veuillez réessayer ou nous contacter.' });

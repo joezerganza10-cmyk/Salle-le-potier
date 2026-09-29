@@ -36,6 +36,8 @@ const { createHold } = require('../../kreovya/tools/createHold');
 const { isValidUuid, EMAIL_RE } = require('../../kreovya/tools/leadValidation');
 const { prepareReservationLink } = require('../../kreovya/tools/prepareReservationLink');
 const { resolveBookingPeriod } = require('../../kreovya/lib/timezone');
+const { describePricing } = require('../../kreovya/lib/pricingEngine');
+const { logEvent, newRequestId } = require('../../kreovya/lib/log');
 
 /* ============================================================
    1. Limites anti-abus (ajustables ici, un seul endroit)
@@ -407,6 +409,7 @@ const TOOL_HANDLERS = {
       return { isError: true, content: { message: period.message } };
     }
 
+    const holdStartedAt = Date.now();
     const holdOutcome = await createHold({
       tenantId: ctx.tenantId,                     // JAMAIS depuis `input`
       leadId: ctx.leadState.currentLeadId,         // JAMAIS depuis `input` — déjà validé réellement par getLeadContext
@@ -417,10 +420,20 @@ const TOOL_HANDLERS = {
     });
 
     if (!holdOutcome.ok) {
+      logEvent({
+        requestId: ctx.requestId, tenantId: ctx.tenantId, operation: 'createHold',
+        result: 'error', errorCode: holdOutcome.status, durationMs: Date.now() - holdStartedAt,
+      });
       return { isError: true, content: { message: holdOutcome.message } };
     }
 
     const result = holdOutcome.result;
+    logEvent({
+      requestId: ctx.requestId, tenantId: ctx.tenantId, operation: 'createHold',
+      resourceId: resourceSlug, bookingId: result.bookingId || null,
+      result: 'ok', errorCode: null, durationMs: Date.now() - holdStartedAt,
+      extra: { outcome: result.outcome },
+    });
 
     if (result.outcome === 'held' || result.outcome === 'already_held') {
       // bookingId réel conservé exclusivement côté serveur — jamais transmis
@@ -454,25 +467,12 @@ const TOOL_HANDLERS = {
       getLeadContext, jamais du navigateur) enrichit le prompt d'un
       instantané contrôlé si un prospect existe déjà pour cette conversation.
    ============================================================ */
-function describeRoomPricing(room) {
-  if (room.pricingType === 'flatDay') {
-    return `${room.dayRate} $ CAD pour la journée complète`;
-  }
-  if (room.pricingType === 'tiered' && room.tieredPricing) {
-    const t = room.tieredPricing;
-    return `à partir de ${t.basePrice} $ CAD pour ${t.baseHours} h incluses, +${t.perExtraHour} $/h supplémentaire, jusqu'à un maximum de ${t.maxHours} h (plafond ${t.maxPrice} $)`;
-  }
-  // Type propre à ce tenant (Salle Le Potier) : deux forfaits fixes distincts
-  // (4h/8h), jamais une formule continue depuis une seule base — ne pas
-  // réutiliser 'tiered' ici, la formule ne correspondrait pas aux vrais prix
-  // (voir kreovya/config/tenants.js).
-  if (room.pricingType === 'packageTiers' && Array.isArray(room.packages)) {
-    const list = room.packages.map((pkg) => `${pkg.hours} h : ${pkg.price} $ CAD`).join(', ');
-    const extra = room.extraHourPrice ? ` (+${room.extraHourPrice} $ CAD/h au-delà du forfait le plus long, sans maximum communiqué)` : '';
-    return `${list}${extra}`;
-  }
-  return "tarif à confirmer avec l'équipe";
-}
+// Délègue au moteur générique partagé (kreovya/lib/pricingEngine.js) — CE
+// fichier ne connaît plus lui-même les types de grille tarifaire ; ajouter
+// un nouveau type se fait désormais UNIQUEMENT dans pricingEngine.js,
+// jamais ici, pour que kreovya-agent.js, resolve-reservation-prefill.js et
+// verify-payment.js restent garantis cohérents entre eux.
+const describeRoomPricing = describePricing;
 
 function buildLeadContextBlock(leadContext) {
   if (!leadContext) return '';
@@ -844,6 +844,7 @@ exports.handler = async (event) => {
   const toolContext = {
     tenantId,
     timezone,
+    requestId: newRequestId(),
     // Origine HTTP réelle de CETTE requête (widget appelant depuis le
     // Deploy Preview ou depuis Production) — jamais une variable de build
     // Netlify (DEPLOY_PRIME_URL/URL ne sont pas fiables au runtime d'une

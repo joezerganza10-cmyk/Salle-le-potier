@@ -8,23 +8,17 @@
  * Revérifie TOUJOURS l'état réel du booking (status='hold', hold_expires_at
  * > now()) — jamais une copie figée qui pourrait devenir mensongère.
  *
- * FRONTIÈRE MULTI-TENANT (corrigée le 28 septembre 2026 — voir audit) :
- * `prefill_tokens` est une table PARTAGÉE entre tous les tenants (même
- * projet Supabase). Une recherche par token seul, sans borner tenant_id à
- * ce que CE déploiement sert réellement, permettrait à un token créé pour
- * un autre tenant (physiquement un autre site Netlify) d'être résolu ici.
- * `listTenantIds()` est la source d'autorité SERVEUR (le contenu même de
- * kreovya/config/tenants.js — jamais une valeur fournie par le navigateur)
- * pour "quel(s) tenant(s) ce site sert" : elle borne la requête Supabase
- * elle-même, si bien qu'une ligne appartenant à un autre tenant n'est même
- * jamais rapatriée. Toutes les requêtes suivantes (booking/resource/lead)
- * restent en plus filtrées par ce même tenantId — double barrière.
+ * La résolution du token (frontière multi-tenant : prefill_tokens est une
+ * table PARTAGÉE entre tenants) vit désormais dans le module partagé
+ * kreovya/lib/resolvePrefillToken.js — utilisé identiquement par
+ * verify-payment.js, pour qu'une seule implémentation porte cette garantie
+ * de sécurité (voir l'audit du 28 septembre 2026).
  */
 
-const { supabaseRequest } = require('../../kreovya/lib/supabaseRest');
-const { getTenant, listTenantIds } = require('../../kreovya/config/tenants');
+const { resolvePrefillToken } = require('../../kreovya/lib/resolvePrefillToken');
 const { parseRangeBounds } = require('../../kreovya/lib/postgresRange');
 const { describeInstantInZone } = require('../../kreovya/lib/timezone');
+const { getTenant } = require('../../kreovya/config/tenants');
 
 function json(statusCode, body) {
   return { statusCode, headers: { 'Content-Type': 'application/json; charset=utf-8' }, body: JSON.stringify(body) };
@@ -36,62 +30,15 @@ exports.handler = async (event) => {
   }
 
   const token = event.queryStringParameters && event.queryStringParameters.session;
-  if (typeof token !== 'string' || !token.trim()) {
-    return json(400, { success: false, message: 'Paramètre "session" requis.' });
+
+  const resolved = await resolvePrefillToken(token);
+  if (!resolved.ok) {
+    return json(resolved.status, { success: false, message: resolved.message });
   }
 
-  // Tenant(s) que CE site sert réellement — jamais déduit de la requête du
-  // navigateur, jamais du contenu du token lui-même avant vérification.
-  const allowedTenantIds = listTenantIds();
-  if (allowedTenantIds.length === 0) {
-    // Ne devrait jamais arriver en fonctionnement normal : aucun tenant actif
-    // configuré sur ce déploiement. Fail closed plutôt que de risquer une
-    // requête Supabase non bornée.
-    console.error('[resolve-reservation-prefill] Aucun tenant actif configuré sur ce site.');
-    return json(404, { success: false, message: 'Lien de réservation introuvable.' });
-  }
-
-  let tokenRows;
-  try {
-    const query = [
-      `token=eq.${encodeURIComponent(token)}`,
-      `tenant_id=in.(${allowedTenantIds.map(encodeURIComponent).join(',')})`,
-      'select=tenant_id,booking_id',
-      'limit=1',
-    ].join('&');
-    tokenRows = await supabaseRequest('prefill_tokens', { query, quiet: true });
-  } catch (err) {
-    console.error('[resolve-reservation-prefill] Erreur lecture token', err && err.message);
-    return json(502, { success: false, message: 'Erreur serveur.' });
-  }
-  const tokenRow = Array.isArray(tokenRows) && tokenRows[0];
-  if (!tokenRow) {
-    // Générique : ne révèle jamais si le token est malformé, inexistant,
-    // expiré, OU réel mais appartenant à un autre tenant — ces cas sont
-    // volontairement indiscernables pour l'appelant.
-    return json(404, { success: false, message: 'Lien de réservation introuvable.' });
-  }
-
-  const { tenant_id: tenantId, booking_id: bookingId } = tokenRow;
+  const { tenantId, booking, resource, lead } = resolved;
   const rawTenant = getTenant(tenantId);
   const timezone = (rawTenant && rawTenant.internal && rawTenant.internal.timezone) || 'UTC';
-
-  let bookingRows;
-  try {
-    const query = [
-      `id=eq.${encodeURIComponent(bookingId)}`,
-      `tenant_id=eq.${encodeURIComponent(tenantId)}`,
-      'select=status,hold_expires_at,resource_id,period,reservation_request_id',
-    ].join('&');
-    bookingRows = await supabaseRequest('bookings', { query });
-  } catch (err) {
-    console.error('[resolve-reservation-prefill] Erreur lecture booking', err && err.message);
-    return json(502, { success: false, message: 'Erreur serveur.' });
-  }
-  const booking = Array.isArray(bookingRows) && bookingRows[0];
-  if (!booking) {
-    return json(404, { success: false, message: 'Réservation introuvable.' });
-  }
 
   if (booking.status === 'confirmed') {
     return json(200, { success: true, status: 'confirmed' });
@@ -102,33 +49,6 @@ exports.handler = async (event) => {
   // traité ici exactement comme expiré (nettoyage paresseux non encore passé).
   if (booking.status !== 'hold' || new Date(booking.hold_expires_at).getTime() <= Date.now()) {
     return json(409, { success: false, message: 'Le délai de réservation a expiré. Veuillez vérifier de nouveau la disponibilité.' });
-  }
-
-  let resourceRows;
-  try {
-    const query = [
-      `id=eq.${encodeURIComponent(booking.resource_id)}`,
-      `tenant_id=eq.${encodeURIComponent(tenantId)}`,
-      'select=slug,name',
-    ].join('&');
-    resourceRows = await supabaseRequest('resources', { query });
-  } catch (err) {
-    console.error('[resolve-reservation-prefill] Erreur lecture resource', err && err.message);
-    return json(502, { success: false, message: 'Erreur serveur.' });
-  }
-  const resource = Array.isArray(resourceRows) && resourceRows[0];
-
-  let lead = null;
-  try {
-    const query = [
-      `id=eq.${encodeURIComponent(booking.reservation_request_id)}`,
-      `tenant_id=eq.${encodeURIComponent(tenantId)}`,
-      'select=full_name,phone,email,event_type,party_size',
-    ].join('&');
-    const leadRows = await supabaseRequest('reservation_requests', { query, quiet: true });
-    lead = Array.isArray(leadRows) && leadRows[0] ? leadRows[0] : null;
-  } catch (err) {
-    console.warn('[resolve-reservation-prefill] Coordonnées du prospect indisponibles', err && err.message);
   }
 
   const bounds = parseRangeBounds(booking.period);
@@ -143,11 +63,11 @@ exports.handler = async (event) => {
     success: true,
     status: 'hold',
     holdExpiresAt: booking.hold_expires_at,
-    resource: resource ? { slug: resource.slug, name: resource.name } : null,
+    resource,
     period,
-    partySize: lead ? lead.party_size : null,
-    eventType: lead ? lead.event_type : null,
-    lead: lead ? { fullName: lead.full_name || null, phone: lead.phone || null, email: lead.email || null } : null,
+    partySize: lead.partySize,
+    eventType: lead.eventType,
+    lead: { fullName: lead.fullName, phone: lead.phone, email: lead.email },
     // Aucun identifiant PayPal propre à Salle Le Potier n'existe encore (voir
     // verify-payment.js) — permet à la page /reservation d'afficher un état
     // "paiement en cours de configuration" plutôt qu'un bouton PayPal cassé,
