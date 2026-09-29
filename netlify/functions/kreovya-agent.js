@@ -719,32 +719,21 @@ async function callAnthropic({ apiKey, model, system, messages, tools, timeoutMs
       // On journalise le statut et le message d'erreur Anthropic (jamais la clé,
       // jamais envoyée dans ce corps de toute façon) pour diagnostiquer côté serveur.
       console.error('[kreovya-agent] Anthropic error', res.status, data && data.error);
-      return {
-        ok: false,
-        status: res.status,
-        errorType: data && data.error && data.error.type,
-        // DIAGNOSTIC TEMPORAIRE (29 sept. 2026, incident 502) — jamais de PII/secret,
-        // uniquement le statut/type/message SÛR renvoyés par Anthropic lui-même et
-        // son request-id de corrélation. À retirer une fois l'incident résolu.
-        upstreamErrorMessage: data && data.error && data.error.message,
-        upstreamRequestId: res.headers.get('request-id') || res.headers.get('anthropic-request-id') || null,
-        model,
-        endpoint: ANTHROPIC_API_URL,
-      };
+      return { ok: false, status: res.status, errorType: data && data.error && data.error.type };
     }
 
     if (!data || !Array.isArray(data.content)) {
       console.error('[kreovya-agent] Réponse Anthropic sans contenu exploitable', data);
-      return { ok: false, status: 502, errorType: 'empty_response', model, endpoint: ANTHROPIC_API_URL };
+      return { ok: false, status: 502, errorType: 'empty_response' };
     }
 
     return { ok: true, content: data.content, stopReason: data.stop_reason };
   } catch (err) {
     if (err && err.name === 'AbortError') {
-      return { ok: false, status: 504, errorType: 'timeout', model, endpoint: ANTHROPIC_API_URL };
+      return { ok: false, status: 504, errorType: 'timeout' };
     }
     console.error('[kreovya-agent] Erreur réseau vers Anthropic', err && err.message);
-    return { ok: false, status: 502, errorType: 'network_error', upstreamErrorMessage: err && err.message, model, endpoint: ANTHROPIC_API_URL };
+    return { ok: false, status: 502, errorType: 'network_error' };
   } finally {
     clearTimeout(timeout);
   }
@@ -909,27 +898,13 @@ exports.handler = async (event) => {
     });
 
     if (!result.ok) {
-      // DIAGNOSTIC TEMPORAIRE (29 sept. 2026, incident 502) — visible UNIQUEMENT si
-      // l'appelant fournit l'en-tête secret ci-dessous (jamais le cas du widget
-      // public réel) ; ne contient jamais de clé API, de PII, ni de contenu de
-      // conversation. À retirer intégralement une fois l'incident diagnostiqué.
-      const diagRequested = headers['x-kreovya-diag'] === 'core-audit-2026-09-29';
-      const diagnostic = diagRequested ? {
-        upstreamStatus: result.status,
-        upstreamErrorType: result.errorType || null,
-        upstreamErrorMessage: result.upstreamErrorMessage || null,
-        upstreamRequestId: result.upstreamRequestId || null,
-        model: result.model || null,
-        endpoint: result.endpoint || null,
-      } : undefined;
-
       if (result.status === 504) {
-        return json(504, { success: false, message: 'Le service met trop de temps à répondre. Veuillez réessayer.', ...(diagnostic ? { diagnostic } : {}) }, origin);
+        return json(504, { success: false, message: 'Le service met trop de temps à répondre. Veuillez réessayer.' }, origin);
       }
       if (result.status === 429) {
-        return json(429, { success: false, message: 'Trop de demandes pour le moment. Veuillez réessayer dans quelques instants.', ...(diagnostic ? { diagnostic } : {}) }, origin);
+        return json(429, { success: false, message: 'Trop de demandes pour le moment. Veuillez réessayer dans quelques instants.' }, origin);
       }
-      return json(502, { success: false, message: 'Une erreur est survenue. Veuillez réessayer ou nous contacter directement.', ...(diagnostic ? { diagnostic } : {}) }, origin);
+      return json(502, { success: false, message: 'Une erreur est survenue. Veuillez réessayer ou nous contacter directement.' }, origin);
     }
 
     const assistantContent = result.content;
