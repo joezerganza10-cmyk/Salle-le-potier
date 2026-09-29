@@ -93,18 +93,24 @@ function computeRoomSubtotal(room, hours) {
 }
 
 /**
- * calculatePrice({ tenantId, resourceSlug, startIso, endIso, paymentOption,
- *                   cleaningSelected })
+ * calculatePrice({ tenantId, resourceSlug, startIso, endIso, hours,
+ *                   paymentOption, cleaningSelected })
  *
  * SOURCE AUTORITAIRE unique du montant dû — jamais recalculée séparément
- * ailleurs. `paymentOption` ('deposit'|'full') n'est exigé QUE si le tenant
- * a une politique de dépôt réelle (reservation.depositPercentage non nul) ;
- * sinon le montant plein est toujours celui dû (aucun dépôt inventé pour un
+ * ailleurs. Deux façons d'indiquer la durée, selon ce que l'appelant connaît
+ * réellement :
+ *   - `startIso`/`endIso` (préféré — dérivé d'un booking Supabase réel,
+ *     jamais du navigateur) ;
+ *   - `hours` directement (nombre positif), pour un appelant qui ne connaît
+ *     qu'une durée (ex. parcours de réservation existant sans lien HOLD).
+ * `paymentOption` ('deposit'|'full') n'est exigé QUE si le tenant a une
+ * politique de dépôt réelle (reservation.depositPercentage non nul) ; sinon
+ * le montant plein est toujours celui dû (aucun dépôt inventé pour un
  * tenant qui n'en a pas — voir Salle Le Potier).
  *
  * Retourne { ok:false, message } ou { ok:true, snapshot, amountDue, currency }.
  */
-function calculatePrice({ tenantId, resourceSlug, startIso, endIso, paymentOption, cleaningSelected }) {
+function calculatePrice({ tenantId, resourceSlug, startIso, endIso, hours: hoursInput, paymentOption, cleaningSelected }) {
   const publicConfig = getPublicConfig(tenantId);
   if (!publicConfig) {
     return { ok: false, message: 'Entreprise inconnue.' };
@@ -115,12 +121,17 @@ function calculatePrice({ tenantId, resourceSlug, startIso, endIso, paymentOptio
     return { ok: false, message: 'Ressource inconnue.' };
   }
 
-  const startMs = new Date(startIso).getTime();
-  const endMs = new Date(endIso).getTime();
-  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
-    return { ok: false, message: 'Période de réservation invalide.' };
+  let hours;
+  if (typeof hoursInput === 'number' && Number.isFinite(hoursInput) && hoursInput > 0) {
+    hours = hoursInput;
+  } else {
+    const startMs = new Date(startIso).getTime();
+    const endMs = new Date(endIso).getTime();
+    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
+      return { ok: false, message: 'Période de réservation invalide.' };
+    }
+    hours = (endMs - startMs) / (1000 * 60 * 60);
   }
-  const hours = (endMs - startMs) / (1000 * 60 * 60);
 
   const roomResult = computeRoomSubtotal(room, hours);
   if (!roomResult.ok) {
